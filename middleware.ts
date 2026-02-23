@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 // Define public routes that don't require authentication
 const publicRoutes = [
+  '/landing',
   '/auth/login', 
   '/auth/signup', 
   '/api/auth/send-otp', 

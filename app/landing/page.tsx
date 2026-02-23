@@ -11,7 +11,8 @@ export default function LandingPage() {
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
-    if (token) {
+    const user = localStorage.getItem('user');
+    if (token && user) {
       router.push('/');
     }
   }, [router]);
