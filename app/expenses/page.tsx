@@ -6,8 +6,8 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Expense Tracker</h1>
-        <p className="text-gray-600">Track and manage your farming expenses</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">खर्च ट्रैकर</h1>
+        <p className="text-gray-600">अपने खेती के खर्चों को ट्रैक और प्रबंधित करें</p>
       </div>
       
       <ExpenseTracker />

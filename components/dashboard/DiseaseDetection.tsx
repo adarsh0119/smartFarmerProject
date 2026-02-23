@@ -6,35 +6,67 @@ import { Upload, Camera, Image as ImageIcon, AlertTriangle, CheckCircle, X } fro
 const commonDiseases = [
   {
     id: 1,
-    name: 'Leaf Rust',
-    crop: 'Wheat',
-    symptoms: 'Orange-brown pustules on leaves',
-    treatment: 'Apply fungicide containing propiconazole',
-    prevention: 'Use resistant varieties, avoid dense planting',
+    name: 'पत्ती का रतुआ',
+    crop: 'गेहूं',
+    symptoms: 'पत्तियों पर नारंगी-भूरे रंग के दाने',
+    treatment: 'प्रोपिकोनाज़ोल युक्त फफूंदनाशक का प्रयोग करें',
+    prevention: 'प्रतिरोधी किस्मों का उपयोग करें, घनी बुवाई से बचें',
   },
   {
     id: 2,
-    name: 'Blast',
-    crop: 'Rice',
-    symptoms: 'Spindle-shaped lesions on leaves',
-    treatment: 'Apply tricyclazole or carbendazim',
-    prevention: 'Use certified seeds, maintain proper spacing',
+    name: 'ब्लास्ट रोग',
+    crop: 'धान',
+    symptoms: 'पत्तियों पर धुरी के आकार के घाव',
+    treatment: 'ट्राइसाइक्लाज़ोल या कार्बेन्डाज़िम का प्रयोग करें',
+    prevention: 'प्रमाणित बीज का उपयोग करें, उचित दूरी बनाए रखें',
   },
   {
     id: 3,
-    name: 'Downy Mildew',
-    crop: 'Maize',
-    symptoms: 'Yellow streaks on leaves, white fungal growth',
-    treatment: 'Apply metalaxyl or mancozeb',
-    prevention: 'Ensure good drainage, crop rotation',
+    name: 'डाउनी मिल्ड्यू',
+    crop: 'मक्का',
+    symptoms: 'पत्तियों पर पीली धारियां, सफेद फफूंद की वृद्धि',
+    treatment: 'मेटालैक्सिल या मैनकोज़ेब का प्रयोग करें',
+    prevention: 'अच्छी जल निकासी सुनिश्चित करें, फसल चक्र अपनाएं',
   },
   {
     id: 4,
-    name: 'Yellow Mosaic Virus',
-    crop: 'Soybean',
-    symptoms: 'Yellow mosaic pattern on leaves',
-    treatment: 'Remove infected plants, control whiteflies',
-    prevention: 'Use virus-free seeds, weed management',
+    name: 'पीला मोज़ेक वायरस',
+    crop: 'सोयाबीन',
+    symptoms: 'पत्तियों पर पीले मोज़ेक पैटर्न',
+    treatment: 'संक्रमित पौधों को हटाएं, सफेद मक्खी को नियंत्रित करें',
+    prevention: 'वायरस मुक्त बीज का उपयोग करें, खरपतवार प्रबंधन करें',
+  },
+  {
+    id: 5,
+    name: 'अगेती झुलसा',
+    crop: 'टमाटर',
+    symptoms: 'पत्तियों पर गहरे भूरे धब्बे, निशान के साथ',
+    treatment: 'मैनकोज़ेब या क्लोरोथैलोनिल का छिड़काव करें',
+    prevention: 'फसल चक्र अपनाएं, संक्रमित पत्तियों को हटाएं',
+  },
+  {
+    id: 6,
+    name: 'पाउडरी मिल्ड्यू',
+    crop: 'मटर',
+    symptoms: 'पत्तियों पर सफेद पाउडर जैसी परत',
+    treatment: 'सल्फर या ट्राइडेमॉर्फ का प्रयोग करें',
+    prevention: 'उचित हवा संचार बनाए रखें, अधिक नमी से बचें',
+  },
+  {
+    id: 7,
+    name: 'जीवाणु झुलसा',
+    crop: 'धान',
+    symptoms: 'पत्तियों पर पानी जैसे धब्बे, पीले किनारे',
+    treatment: 'कॉपर ऑक्सीक्लोराइड का छिड़काव करें',
+    prevention: 'स्वस्थ बीज का उपयोग करें, खेत में पानी का प्रबंधन करें',
+  },
+  {
+    id: 8,
+    name: 'फल सड़न',
+    crop: 'मिर्च',
+    symptoms: 'फलों पर काले धब्बे, सड़न',
+    treatment: 'कार्बेन्डाज़िम या थायोफैनेट मिथाइल का प्रयोग करें',
+    prevention: 'अच्छी जल निकासी, संक्रमित फलों को हटाएं',
   },
 ];
 
@@ -43,6 +75,7 @@ export default function DiseaseDetection() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedDisease, setSelectedDisease] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,25 +110,26 @@ export default function DiseaseDetection() {
           
           // Mock analysis result
           setAnalysisResult({
-            disease: 'Leaf Rust',
+            disease: 'पत्ती का रतुआ',
             confidence: 87,
-            crop: 'Wheat',
-            description: 'Fungal disease affecting wheat leaves',
+            crop: 'गेहूं',
+            description: 'गेहूं की पत्तियों को प्रभावित करने वाला फफूंद रोग',
             treatment: [
-              'Apply fungicide containing propiconazole (1ml/liter)',
-              'Spray at 10-day intervals',
-              'Remove severely infected leaves',
+              'प्रोपिकोनाज़ोल युक्त फफूंदनाशक का छिड़काव करें (1 मिली/लीटर)',
+              '10 दिन के अंतराल पर छिड़काव करें',
+              'गंभीर रूप से संक्रमित पत्तियों को हटा दें',
             ],
             prevention: [
-              'Use resistant varieties like HD-2967',
-              'Avoid dense planting',
-              'Ensure proper drainage',
+              'एचडी-2967 जैसी प्रतिरोधी किस्मों का उपयोग करें',
+              'घनी बुवाई से बचें',
+              'उचित जल निकासी सुनिश्चित करें',
             ],
-            severity: 'Moderate',
+            severity: 'मध्यम',
+            riskLevel: 'उच्च',
             immediateActions: [
-              'Isolate affected plants',
-              'Apply recommended fungicide within 24 hours',
-              'Monitor nearby plants for symptoms',
+              'प्रभावित पौधों को अलग करें',
+              '24 घंटे के भीतर अनुशंसित फफूंदनाशक का प्रयोग करें',
+              'आस-पास के पौधों में लक्षणों की निगरानी करें',
             ],
           });
           return 100;
@@ -118,24 +152,24 @@ export default function DiseaseDetection() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center">
           <AlertTriangle className="w-5 h-5 mr-2 text-amber-500" />
-          Disease Detection
+          रोग पहचान
         </h2>
         <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
-          View History
+          इतिहास देखें
         </button>
       </div>
 
       {/* Image Upload Section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">Upload Crop Image</h3>
-          <span className="text-xs text-gray-500">Max 5MB • JPG, PNG</span>
+          <h3 className="font-semibold">फसल की तस्वीर अपलोड करें</h3>
+          <span className="text-xs text-gray-500">अधिकतम 5MB • JPG, PNG</span>
         </div>
 
         {!selectedImage ? (
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-amber-400 transition-colors">
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">Upload an image of affected crop leaves</p>
+            <p className="text-gray-600 mb-4">प्रभावित फसल की पत्तियों की तस्वीर अपलोड करें</p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
@@ -143,7 +177,7 @@ export default function DiseaseDetection() {
                 className="flex items-center justify-center space-x-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
               >
                 <Upload className="w-4 h-4" />
-                <span>Upload Image</span>
+                <span>तस्वीर अपलोड करें</span>
               </button>
               
               <button
@@ -151,7 +185,7 @@ export default function DiseaseDetection() {
                 className="flex items-center justify-center space-x-2 border border-amber-600 text-amber-600 px-4 py-2 rounded-lg hover:bg-amber-50 transition-colors"
               >
                 <Camera className="w-4 h-4" />
-                <span>Use Camera</span>
+                <span>कैमरा उपयोग करें</span>
               </button>
             </div>
 
@@ -191,7 +225,7 @@ export default function DiseaseDetection() {
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="spinner mx-auto mb-2 border-white border-t-white"></div>
-                  <p>Analyzing... {uploadProgress}%</p>
+                  <p>विश्लेषण हो रहा है... {uploadProgress}%</p>
                 </div>
               </div>
             )}
@@ -203,7 +237,7 @@ export default function DiseaseDetection() {
             onClick={handleAnalyze}
             className="w-full mt-4 bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
           >
-            Analyze Image for Diseases
+            रोगों के लिए तस्वीर का विश्लेषण करें
           </button>
         )}
       </div>
@@ -213,28 +247,28 @@ export default function DiseaseDetection() {
         <div className="space-y-4">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-amber-800">Detection Result</h3>
+              <h3 className="font-bold text-amber-800">पहचान परिणाम</h3>
               <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                {analysisResult.confidence}% Confidence
+                {analysisResult.confidence}% विश्वसनीयता
               </span>
             </div>
             
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <p className="text-sm text-gray-500">Disease</p>
+                <p className="text-sm text-gray-500">रोग</p>
                 <p className="font-semibold">{analysisResult.disease}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Crop</p>
+                <p className="text-sm text-gray-500">फसल</p>
                 <p className="font-semibold">{analysisResult.crop}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Severity</p>
+                <p className="text-sm text-gray-500">गंभीरता</p>
                 <p className="font-semibold">{analysisResult.severity}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Risk Level</p>
-                <p className="font-semibold text-red-600">High</p>
+                <p className="text-sm text-gray-500">जोखिम स्तर</p>
+                <p className="font-semibold text-red-600">{analysisResult.riskLevel}</p>
               </div>
             </div>
 
@@ -246,7 +280,7 @@ export default function DiseaseDetection() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <h4 className="font-semibold text-red-800 mb-2 flex items-center">
                 <AlertTriangle className="w-4 h-4 mr-2" />
-                Immediate Actions
+                तत्काल कार्रवाई
               </h4>
               <ul className="space-y-1">
                 {analysisResult.immediateActions.map((action: string, index: number) => (
@@ -261,7 +295,7 @@ export default function DiseaseDetection() {
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <h4 className="font-semibold text-emerald-800 mb-2 flex items-center">
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Treatment
+                उपचार
               </h4>
               <ul className="space-y-1">
                 {analysisResult.treatment.map((item: string, index: number) => (
@@ -275,7 +309,7 @@ export default function DiseaseDetection() {
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-800 mb-2">Prevention Measures</h4>
+            <h4 className="font-semibold text-blue-800 mb-2">रोकथाम के उपाय</h4>
             <ul className="space-y-1">
               {analysisResult.prevention.map((item: string, index: number) => (
                 <li key={index} className="text-sm text-blue-700 flex items-start">
@@ -290,19 +324,53 @@ export default function DiseaseDetection() {
 
       {/* Common Diseases */}
       <div className="mt-6">
-        <h3 className="font-semibold mb-3">Common Diseases in Your Area</h3>
+        <h3 className="font-semibold mb-3">आपके क्षेत्र में आम रोग</h3>
         <div className="space-y-2">
           {commonDiseases.map((disease) => (
-            <div key={disease.id} className="p-3 border border-gray-200 rounded-lg hover:border-amber-300 transition-colors">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium">{disease.name}</h4>
-                  <p className="text-sm text-gray-600">{disease.crop} • {disease.symptoms}</p>
+            <div key={disease.id}>
+              <div 
+                className="p-3 border border-gray-200 rounded-lg hover:border-amber-300 transition-colors cursor-pointer"
+                onClick={() => setSelectedDisease(selectedDisease === disease.id ? null : disease.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">{disease.name}</h4>
+                    <p className="text-sm text-gray-600">{disease.crop} • {disease.symptoms}</p>
+                  </div>
+                  <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
+                    {selectedDisease === disease.id ? 'छिपाएं' : 'विवरण'}
+                  </button>
                 </div>
-                <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
-                  Details
-                </button>
               </div>
+
+              {/* Disease Details - Expandable */}
+              {selectedDisease === disease.id && (
+                <div className="mt-2 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                  <div>
+                    <h5 className="font-semibold text-amber-800 mb-2 flex items-center">
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      लक्षण
+                    </h5>
+                    <p className="text-sm text-amber-700">{disease.symptoms}</p>
+                  </div>
+
+                  <div>
+                    <h5 className="font-semibold text-green-800 mb-2 flex items-center">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      उपचार
+                    </h5>
+                    <p className="text-sm text-green-700">{disease.treatment}</p>
+                  </div>
+
+                  <div>
+                    <h5 className="font-semibold text-blue-800 mb-2 flex items-center">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      रोकथाम
+                    </h5>
+                    <p className="text-sm text-blue-700">{disease.prevention}</p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

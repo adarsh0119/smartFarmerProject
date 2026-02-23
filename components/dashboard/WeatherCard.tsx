@@ -222,39 +222,67 @@ export default function WeatherCard() {
   };
 
   const useCurrentLocation = () => {
-    if (navigator.geolocation) {
-      setShowLocationModal(false);
-      setIsLoading(true);
-      setLocation('Detecting your location...');
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          setIsLoading(false);
-          
-          let errorMessage = 'Unable to get your location. ';
-          if (error.code === error.PERMISSION_DENIED) {
-            errorMessage += 'Location access was denied. Please allow location access in your browser settings or select a city manually.';
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            errorMessage += 'Location information is unavailable. Please select a city manually.';
-          } else if (error.code === error.TIMEOUT) {
-            errorMessage += 'Location request timed out. Please try again or select a city manually.';
-          } else {
-            errorMessage += 'Please select a city manually.';
-          }
-          
-          setError(errorMessage);
-          setLocation('Location unavailable');
+    if (!navigator.geolocation) {
+      setError('आपका ब्राउज़र स्थान सेवा का समर्थन नहीं करता। कृपया मैन्युअल रूप से शहर चुनें।');
+      setLocation('स्थान समर्थित नहीं');
+      setIsLoading(false);
+      setShowLocationModal(true);
+      return;
+    }
+
+    setShowLocationModal(false);
+    setIsLoading(true);
+    setError('');
+    setLocation('आपका स्थान पता लगाया जा रहा है...');
+    
+    console.log('Requesting device location...');
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('Location obtained:', position.coords.latitude, position.coords.longitude);
+        fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setIsLoading(false);
+        
+        let errorMessage = '';
+        let shouldShowModal = true;
+        
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMessage = 'स्थान एक्सेस अस्वीकृत। कृपया अपनी ब्राउज़र सेटिंग्स में स्थान एक्सेस की अनुमति दें:\n\n';
+          errorMessage += '1. ब्राउज़र के एड्रेस बार में ताला/जानकारी आइकन पर क्लिक करें\n';
+          errorMessage += '2. "स्थान" या "Location" सेटिंग खोजें\n';
+          errorMessage += '3. "अनुमति दें" या "Allow" चुनें\n';
+          errorMessage += '4. पेज को रीफ्रेश करें\n\n';
+          errorMessage += 'या मैन्युअल रूप से शहर चुनें।';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMessage = 'स्थान जानकारी उपलब्ध नहीं है। कृपया सुनिश्चित करें कि:\n\n';
+          errorMessage += '1. आपका डिवाइस GPS/स्थान सेवा चालू है\n';
+          errorMessage += '2. आप इंटरनेट से कनेक्टेड हैं\n';
+          errorMessage += '3. ब्राउज़र को स्थान एक्सेस की अनुमति है\n\n';
+          errorMessage += 'या मैन्युअल रूप से शहर चुनें।';
+        } else if (error.code === error.TIMEOUT) {
+          errorMessage = 'स्थान प्राप्त करने में समय समाप्त हो गया। कृपया:\n\n';
+          errorMessage += '1. अपना इंटरनेट कनेक्शन जांचें\n';
+          errorMessage += '2. पुनः प्रयास करें\n';
+          errorMessage += '3. या मैन्युअल रूप से शहर चुनें';
+        } else {
+          errorMessage = 'स्थान प्राप्त करने में त्रुटि। कृपया मैन्युअल रूप से शहर चुनें।';
+        }
+        
+        setError(errorMessage);
+        setLocation('स्थान उपलब्ध नहीं');
+        if (shouldShowModal) {
           setShowLocationModal(true);
         }
-      );
-    } else {
-      setError('Geolocation is not supported by your browser. Please select a city manually.');
-      setLocation('Location not supported');
-      setShowLocationModal(true);
-    }
+      },
+      {
+        enableHighAccuracy: true, // Use GPS for better accuracy
+        timeout: 15000, // 15 seconds timeout
+        maximumAge: 0 // Don't use cached location, get fresh location
+      }
+    );
   };
 
   useEffect(() => {
@@ -295,18 +323,18 @@ export default function WeatherCard() {
     const condition = weather.condition.toLowerCase();
 
     if (condition.includes('rain')) {
-      return 'Avoid irrigation today. Good time for sowing rain-fed crops.';
+      return 'आज सिंचाई से बचें। बारिश आधारित फसलों की बुवाई के लिए अच्छा समय है।';
     }
     if (temp > 35) {
-      return 'High temperature alert! Water crops in early morning or late evening.';
+      return 'उच्च तापमान चेतावनी! सुबह जल्दी या शाम को देर से फसलों को पानी दें।';
     }
     if (temp < 10) {
-      return 'Low temperature. Protect sensitive crops with covers.';
+      return 'कम तापमान। संवेदनशील फसलों को कवर से सुरक्षित रखें।';
     }
     if (humidity > 80) {
-      return 'High humidity. Watch for fungal diseases. Apply preventive fungicides.';
+      return 'उच्च आर्द्रता। फफूंद रोगों के लिए सावधान रहें। निवारक फफूंदनाशक लगाएं।';
     }
-    return 'Normal weather conditions. Continue regular farming activities.';
+    return 'सामान्य मौसम की स्थिति। नियमित खेती गतिविधियां जारी रखें।';
   };
 
   if (isLoading && !location) {
@@ -315,8 +343,14 @@ export default function WeatherCard() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-2" />
-            <p className="text-gray-600">Detecting your location...</p>
-            <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+            <p className="text-gray-600 font-medium">आपका स्थान पता लगाया जा रहा है...</p>
+            <p className="text-sm text-gray-500 mt-2">इसमें कुछ सेकंड लग सकते हैं</p>
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-left max-w-sm mx-auto">
+              <p className="text-xs text-blue-800">
+                <span className="font-semibold">💡 सुझाव:</span> यदि ब्राउज़र स्थान अनुमति मांगे, तो कृपया "अनुमति दें" पर क्लिक करें। 
+                यह आपके क्षेत्र के लिए सटीक मौसम जानकारी प्रदान करेगा।
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -329,7 +363,7 @@ export default function WeatherCard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold flex items-center text-gray-900">
             <Cloud className="w-5 h-5 mr-2 text-blue-500" />
-            Weather Forecast
+            मौसम पूर्वानुमान
           </h2>
           <div className="flex items-center space-x-2">
             <button
@@ -337,7 +371,7 @@ export default function WeatherCard() {
               className="text-sm text-emerald-600 hover:text-emerald-800 font-medium flex items-center"
             >
               <MapPin className="w-4 h-4 mr-1" />
-              Change
+              बदलें
             </button>
             <button
               onClick={useCurrentLocation}
@@ -345,7 +379,7 @@ export default function WeatherCard() {
               className="text-sm text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 flex items-center"
             >
               <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
+              रीफ्रेश करें
             </button>
           </div>
         </div>
@@ -357,27 +391,35 @@ export default function WeatherCard() {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-800">Weather Data Unavailable</p>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-                <button
-                  onClick={useCurrentLocation}
-                  className="mt-3 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Try Again
-                </button>
+                <p className="text-sm font-medium text-red-800 mb-2">स्थान प्राप्त नहीं हो सका</p>
+                <div className="text-sm text-red-700 whitespace-pre-line">{error}</div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={useCurrentLocation}
+                    className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    पुनः प्रयास करें
+                  </button>
+                  <button
+                    onClick={() => setShowLocationModal(true)}
+                    className="px-4 py-2 bg-white border border-red-300 text-red-700 text-sm rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    शहर चुनें
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* Show location box - always visible when we have location */}
-        {location && location !== 'Detecting your location...' && (
+        {location && location !== 'आपका स्थान पता लगाया जा रहा है...' && (
           <div className="mb-4 p-4 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-lg border border-emerald-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center text-gray-700">
                 <MapPin className="w-5 h-5 mr-2 text-emerald-600" />
                 <div>
-                  <p className="text-xs text-gray-500">Your Location</p>
+                  <p className="text-xs text-gray-500">आपका स्थान</p>
                   <p className="font-semibold text-gray-900 text-lg">{location}</p>
                 </div>
               </div>
@@ -395,7 +437,7 @@ export default function WeatherCard() {
                 <div>
                   <div className="flex items-center text-gray-600 mb-1">
                     <MapPin className="w-4 h-4 mr-1" />
-                    <p className="text-sm">Weather Data</p>
+                    <p className="text-sm">मौसम डेटा</p>
                   </div>
                   <p className="font-semibold text-gray-900">{location}</p>
                 </div>
@@ -412,22 +454,22 @@ export default function WeatherCard() {
                 <div className="flex items-center space-x-2">
                   <Thermometer className="w-5 h-5 text-red-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-gray-500">Feels Like</p>
+                    <p className="text-xs text-gray-500">महसूस होता है</p>
                     <p className="font-semibold text-gray-900">{weather.feelsLike}°C</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Droplets className="w-5 h-5 text-blue-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-gray-500">Humidity</p>
+                    <p className="text-xs text-gray-500">आर्द्रता</p>
                     <p className="font-semibold text-gray-900">{weather.humidity}%</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Wind className="w-5 h-5 text-gray-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-gray-500">Wind</p>
-                    <p className="font-semibold text-gray-900">{weather.windSpeed} km/h</p>
+                    <p className="text-xs text-gray-500">हवा</p>
+                    <p className="font-semibold text-gray-900">{weather.windSpeed} किमी/घंटा</p>
                   </div>
                 </div>
               </div>
@@ -435,19 +477,19 @@ export default function WeatherCard() {
 
             <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <p className="text-xs text-gray-500">Pressure</p>
+                <p className="text-xs text-gray-500">दबाव</p>
                 <p className="font-semibold text-gray-900">{weather.pressure} hPa</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Visibility</p>
-                <p className="font-semibold text-gray-900">{weather.visibility} km</p>
+                <p className="text-xs text-gray-500">दृश्यता</p>
+                <p className="font-semibold text-gray-900">{weather.visibility} किमी</p>
               </div>
             </div>
 
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <h4 className="font-semibold text-emerald-800 mb-2 flex items-center">
                 <Sun className="w-4 h-4 mr-2" />
-                Farming Advice
+                खेती सलाह
               </h4>
               <p className="text-sm text-emerald-700">{getFarmingAdvice()}</p>
             </div>
@@ -455,14 +497,14 @@ export default function WeatherCard() {
             {weather.temperature > 35 && (
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900">Weather Alerts</span>
+                  <span className="text-sm font-medium text-gray-900">मौसम चेतावनी</span>
                   <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-                    1 Active
+                    1 सक्रिय
                   </span>
                 </div>
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">
-                    ⚠️ High temperature alert! Take precautions for your crops.
+                    ⚠️ उच्च तापमान चेतावनी! अपनी फसलों के लिए सावधानी बरतें।
                   </p>
                 </div>
               </div>
@@ -471,8 +513,8 @@ export default function WeatherCard() {
         ) : error ? (
           <div className="text-center py-8">
             <Cloud className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">Weather data is currently unavailable</p>
-            <p className="text-sm text-gray-500">Please check the error message above</p>
+            <p className="text-gray-600 mb-2">मौसम डेटा वर्तमान में उपलब्ध नहीं है</p>
+            <p className="text-sm text-gray-500">कृपया ऊपर दिए गए त्रुटि संदेश की जांच करें</p>
           </div>
         ) : null}
       </div>
@@ -481,7 +523,7 @@ export default function WeatherCard() {
       {showLocationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Select Location</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">स्थान चुनें</h3>
             
             <div className="space-y-4">
               {/* Current Location Button */}
@@ -491,7 +533,7 @@ export default function WeatherCard() {
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
               >
                 <Navigation className="w-5 h-5" />
-                <span>Use Current Location</span>
+                <span>वर्तमान स्थान का उपयोग करें</span>
               </button>
 
               <div className="relative">
@@ -499,7 +541,7 @@ export default function WeatherCard() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or search for a city</span>
+                  <span className="px-2 bg-white text-gray-500">या शहर खोजें</span>
                 </div>
               </div>
 
@@ -512,7 +554,7 @@ export default function WeatherCard() {
                   type="text"
                   value={searchCity}
                   onChange={handleCitySearch}
-                  placeholder="Search for a city..."
+                  placeholder="शहर खोजें..."
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
                   autoFocus
                 />
@@ -523,7 +565,7 @@ export default function WeatherCard() {
                     {isSearching ? (
                       <div className="text-center py-4">
                         <RefreshCw className="w-5 h-5 text-emerald-600 animate-spin mx-auto" />
-                        <p className="text-sm text-gray-600 mt-2">Searching...</p>
+                        <p className="text-sm text-gray-600 mt-2">खोज रहे हैं...</p>
                       </div>
                     ) : searchResults.length > 0 ? (
                       searchResults.map((city, index) => (
@@ -542,7 +584,7 @@ export default function WeatherCard() {
                       ))
                     ) : (
                       <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                        No cities found. Try a different search.
+                        कोई शहर नहीं मिला। कोई अन्य खोज आज़माएं।
                       </div>
                     )}
                   </div>
@@ -558,7 +600,7 @@ export default function WeatherCard() {
               }}
               className="mt-4 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              रद्द करें
             </button>
           </div>
         </div>

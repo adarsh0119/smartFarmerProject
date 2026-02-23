@@ -41,55 +41,55 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Manage your account settings and preferences</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">सेटिंग्स</h1>
+        <p className="text-gray-600">अपने खाते की सेटिंग्स और प्राथमिकताओं को प्रबंधित करें</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">प्रोफाइल जानकारी</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <User className="inline w-4 h-4 mr-1" />
-              Full Name
+              पूरा नाम
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="Enter your name"
+              placeholder="अपना नाम दर्ज करें"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <Mail className="inline w-4 h-4 mr-1" />
-              Email Address
+              ईमेल पता
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="your@email.com"
+              placeholder="आपका ईमेल"
               disabled
             />
-            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+            <p className="text-xs text-gray-500 mt-1">ईमेल बदला नहीं जा सकता</p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <Phone className="inline w-4 h-4 mr-1" />
-              Phone Number
+              फोन नंबर
             </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="Enter your phone number"
+              placeholder="अपना फोन नंबर दर्ज करें"
             />
           </div>
 
@@ -97,41 +97,41 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="inline w-4 h-4 mr-1" />
-                State
+                राज्य
               </label>
               <input
                 type="text"
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="Your state"
+                placeholder="आपका राज्य"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                District
+                जिला
               </label>
               <input
                 type="text"
                 value={formData.district}
                 onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="Your district"
+                placeholder="आपका जिला"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Farm Size (acres)
+              खेत का आकार (एकड़)
             </label>
             <input
               type="number"
               value={formData.farmSize}
               onChange={(e) => setFormData({ ...formData, farmSize: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="Enter farm size"
+              placeholder="खेत का आकार दर्ज करें"
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function SettingsPage() {
             className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center"
           >
             <Save className="w-5 h-5 mr-2" />
-            Save Changes
+            परिवर्तन सहेजें
           </button>
         </form>
       </div>

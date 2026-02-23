@@ -19,29 +19,29 @@ export default function LandingPage() {
   const features = [
     {
       icon: <Sprout className="w-8 h-8" />,
-      title: 'Smart Crop Recommendations',
-      description: 'Get AI-powered crop suggestions based on soil, weather, and market conditions.',
+      title: 'स्मार्ट फसल सुझाव',
+      description: 'मिट्टी, मौसम और बाजार की स्थिति के आधार पर AI द्वारा फसल के सुझाव प्राप्त करें।',
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50',
     },
     {
       icon: <Shield className="w-8 h-8" />,
-      title: 'Disease Detection',
-      description: 'Upload crop images to detect diseases early and get treatment recommendations.',
+      title: 'रोग पहचान',
+      description: 'फसल की तस्वीरें अपलोड करें और रोगों की जल्दी पहचान करें, उपचार के सुझाव पाएं।',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
       icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Market Insights',
-      description: 'Real-time mandi prices and market trends to maximize your profits.',
+      title: 'बाजार जानकारी',
+      description: 'वास्तविक समय की मंडी भाव और बाजार के रुझान से अपना मुनाफा बढ़ाएं।',
       color: 'text-amber-600',
       bgColor: 'bg-amber-50',
     },
     {
       icon: <Users className="w-8 h-8" />,
-      title: 'Community Support',
-      description: 'Connect with other farmers and agricultural experts for guidance.',
+      title: 'समुदाय सहायता',
+      description: 'अन्य किसानों और कृषि विशेषज्ञों से जुड़ें और मार्गदर्शन प्राप्त करें।',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
@@ -56,20 +56,20 @@ export default function LandingPage() {
             <div className="bg-emerald-600 p-2 rounded-lg">
               <Sprout className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">Smart Farmer</span>
+            <span className="text-2xl font-bold text-gray-900">स्मार्ट किसान</span>
           </div>
           <div className="flex items-center space-x-4">
             <Link
               href="/auth/login"
               className="text-gray-700 hover:text-emerald-600 font-medium transition-colors"
             >
-              Sign In
+              लॉगिन करें
             </Link>
             <Link
               href="/auth/signup"
               className="btn-primary"
             >
-              Get Started
+              शुरू करें
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
@@ -80,26 +80,26 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Empowering Farmers with
-            <span className="text-gradient ml-2">Smart Technology</span>
+            किसानों को सशक्त बनाएं
+            <span className="text-gradient ml-2">स्मार्ट तकनीक से</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Your all-in-one digital companion for modern farming. Get crop recommendations, 
-            disease detection, market prices, and expert advice in one place.
+            आधुनिक खेती के लिए आपका सर्वश्रेष्ठ डिजिटल साथी। फसल सुझाव, रोग पहचान, 
+            बाजार भाव और विशेषज्ञ सलाह - सब एक जगह पाएं।
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/signup"
               className="btn-primary px-8 py-3 text-lg"
             >
-              Start Free Trial
+              मुफ्त शुरू करें
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               href="/auth/login"
               className="btn-outline px-8 py-3 text-lg"
             >
-              Sign In to Dashboard
+              डैशबोर्ड में लॉगिन करें
             </Link>
           </div>
         </div>
@@ -109,11 +109,11 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Everything You Need for Smart Farming
+            स्मार्ट खेती के लिए सब कुछ
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Our platform combines cutting-edge technology with agricultural expertise 
-            to help you make better farming decisions.
+            हमारा प्लेटफॉर्म आधुनिक तकनीक और कृषि विशेषज्ञता को मिलाकर 
+            आपको बेहतर खेती के फैसले लेने में मदद करता है।
           </p>
         </div>
 
@@ -141,19 +141,19 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold mb-2">10,000+</div>
-              <div className="text-emerald-100">Farmers Empowered</div>
+              <div className="text-emerald-100">सशक्त किसान</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">50+</div>
-              <div className="text-emerald-100">Crop Varieties</div>
+              <div className="text-emerald-100">फसल किस्में</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">₹2.5Cr+</div>
-              <div className="text-emerald-100">Profit Increased</div>
+              <div className="text-4xl font-bold mb-2">₹2.5 करोड़+</div>
+              <div className="text-emerald-100">मुनाफा बढ़ा</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">24/7</div>
-              <div className="text-emerald-100">Expert Support</div>
+              <div className="text-emerald-100">विशेषज्ञ सहायता</div>
             </div>
           </div>
         </div>
@@ -164,21 +164,21 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl p-8 md:p-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ready to Transform Your Farming?
+              अपनी खेती को बदलने के लिए तैयार हैं?
             </h2>
             <p className="text-gray-600 mb-8">
-              Join thousands of farmers who are already using Smart Farmer to 
-              increase their yields and profits.
+              हजारों किसानों के साथ जुड़ें जो पहले से ही स्मार्ट किसान का उपयोग करके 
+              अपनी उपज और मुनाफा बढ़ा रहे हैं।
             </p>
             <Link
               href="/auth/signup"
               className="btn-primary px-8 py-3 text-lg inline-flex items-center"
             >
-              Get Started for Free
+              मुफ्त में शुरू करें
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <p className="text-sm text-gray-500 mt-4">
-              No credit card required • 14-day free trial
+              कोई क्रेडिट कार्ड की आवश्यकता नहीं • 14 दिन का मुफ्त ट्रायल
             </p>
           </div>
         </div>
@@ -192,10 +192,10 @@ export default function LandingPage() {
               <div className="bg-emerald-600 p-2 rounded-lg">
                 <Sprout className="w-5 h-5" />
               </div>
-              <span className="text-xl font-bold">Smart Farmer</span>
+              <span className="text-xl font-bold">स्मार्ट किसान</span>
             </div>
             <div className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Smart Farmer Assistant. All rights reserved.
+              &copy; {new Date().getFullYear()} स्मार्ट किसान सहायक। सर्वाधिकार सुरक्षित।
             </div>
           </div>
         </div>

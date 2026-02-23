@@ -18,20 +18,20 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/' },
-  { id: 'weather', label: 'Weather', icon: Cloud, href: '/weather' },
-  { id: 'crops', label: 'Crop Recommendation', icon: Sprout, href: '/crops' },
-  { id: 'diseases', label: 'Disease Detection', icon: Bug, href: '/diseases' },
-  { id: 'prices', label: 'Mandi Prices', icon: TrendingUp, href: '/prices' },
-  { id: 'calendar', label: 'Crop Calendar', icon: Calendar, href: '/calendar' },
-  { id: 'expenses', label: 'Expense Tracker', icon: DollarSign, href: '/expenses' },
-  { id: 'marketplace', label: 'Marketplace', icon: Store, href: '/marketplace' },
-  { id: 'schemes', label: 'Govt Schemes', icon: Award, href: '/schemes' },
+  { id: 'home', label: 'होम', icon: Home, href: '/' },
+  { id: 'weather', label: 'मौसम', icon: Cloud, href: '/weather' },
+  { id: 'crops', label: 'फसल सुझाव', icon: Sprout, href: '/crops' },
+  { id: 'diseases', label: 'रोग पहचान', icon: Bug, href: '/diseases' },
+  { id: 'prices', label: 'मंडी भाव', icon: TrendingUp, href: '/prices' },
+  { id: 'calendar', label: 'फसल कैलेंडर', icon: Calendar, href: '/calendar' },
+  { id: 'expenses', label: 'खर्च ट्रैकर', icon: DollarSign, href: '/expenses' },
+  { id: 'marketplace', label: 'बाजार', icon: Store, href: '/marketplace' },
+  { id: 'schemes', label: 'सरकारी योजनाएं', icon: Award, href: '/schemes' },
 ];
 
 const bottomItems = [
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
-  { id: 'help', label: 'Help & Support', icon: HelpCircle, href: '/help' },
+  { id: 'settings', label: 'सेटिंग्स', icon: Settings, href: '/settings' },
+  { id: 'help', label: 'मदद और सहायता', icon: HelpCircle, href: '/help' },
 ];
 
 export default function Navigation() {
@@ -52,7 +52,7 @@ export default function Navigation() {
             <div className={`w-4 h-0.5 bg-gray-600 transition-transform ${isCollapsed ? '' : '-rotate-45 -translate-y-0.5'}`} />
           </div>
           {!isCollapsed && (
-            <span className="ml-2 text-sm text-gray-600">Collapse</span>
+            <span className="ml-2 text-sm text-gray-600">छोटा करें</span>
           )}
         </div>
       </button>
@@ -62,7 +62,7 @@ export default function Navigation() {
         <div className="px-3 mb-6">
           {!isCollapsed && (
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Main Menu
+              मुख्य मेनू
             </h2>
           )}
           <ul className="space-y-1">
@@ -92,28 +92,7 @@ export default function Navigation() {
           </ul>
         </div>
 
-        {/* Quick Stats (only when expanded) */}
-        {!isCollapsed && (
-          <div className="px-3 mb-6">
-            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Quick Stats
-            </h2>
-            <div className="space-y-2">
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-xs text-blue-700">Active Crops</p>
-                <p className="text-lg font-semibold text-blue-900">3</p>
-              </div>
-              <div className="bg-green-50 p-3 rounded-lg">
-                <p className="text-xs text-green-700">This Month's Profit</p>
-                <p className="text-lg font-semibold text-green-900">₹12,500</p>
-              </div>
-              <div className="bg-amber-50 p-3 rounded-lg">
-                <p className="text-xs text-amber-700">Pending Tasks</p>
-                <p className="text-lg font-semibold text-amber-900">2</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Quick Stats (only when expanded) - REMOVED */}
       </div>
 
       {/* Bottom navigation items */}
@@ -147,9 +126,9 @@ export default function Navigation() {
         {!isCollapsed && (
           <div className="px-3 mt-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-500">Need help?</p>
-              <p className="text-sm font-medium text-gray-900">Call: 1800-123-4567</p>
-              <p className="text-xs text-gray-500 mt-1">Available 24/7</p>
+              <p className="text-xs text-gray-500">मदद चाहिए?</p>
+              <p className="text-sm font-medium text-gray-900">कॉल करें: 1800-123-4567</p>
+              <p className="text-xs text-gray-500 mt-1">24/7 उपलब्ध</p>
             </div>
           </div>
         )}

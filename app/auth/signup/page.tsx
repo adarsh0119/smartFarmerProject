@@ -140,10 +140,10 @@ export default function SignupPage() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {step === 'details' ? 'Create Your Account' : 'Verify Your Email'}
+              {step === 'details' ? 'अपना खाता बनाएं' : 'अपना ईमेल सत्यापित करें'}
             </h1>
             <p className="text-gray-700 mt-2">
-              {step === 'details' ? 'Join Smart Farmer Assistant' : `OTP sent to ${formData.email}`}
+              {step === 'details' ? 'स्मार्ट किसान सहायक में शामिल हों' : `OTP भेजा गया ${formData.email} पर`}
             </p>
           </div>
           
@@ -158,7 +158,7 @@ export default function SignupPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Full Name *
+                    पूरा नाम *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -170,7 +170,7 @@ export default function SignupPage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="Enter your full name"
+                      placeholder="अपना पूरा नाम दर्ज करें"
                       required
                     />
                   </div>
@@ -178,7 +178,7 @@ export default function SignupPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Email Address *
+                    ईमेल पता *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -190,7 +190,7 @@ export default function SignupPage() {
                       value={formData.email}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="you@example.com"
+                      placeholder="आपका ईमेल"
                       required
                     />
                   </div>
@@ -198,7 +198,7 @@ export default function SignupPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Password *
+                    पासवर्ड *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -210,7 +210,7 @@ export default function SignupPage() {
                       value={formData.password}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="Create a password (min. 6 characters)"
+                      placeholder="पासवर्ड बनाएं (न्यूनतम 6 अक्षर)"
                       required
                     />
                     <button
@@ -229,7 +229,7 @@ export default function SignupPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Confirm Password *
+                    पासवर्ड की पुष्टि करें *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -241,7 +241,7 @@ export default function SignupPage() {
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="Confirm your password"
+                      placeholder="अपने पासवर्ड की पुष्टि करें"
                       required
                     />
                     <button
@@ -267,14 +267,15 @@ export default function SignupPage() {
                     className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded mt-1"
                   />
                   <label htmlFor="terms" className="ml-2 text-sm text-gray-800">
-                    I agree to the{' '}
+                    मैं{' '}
                     <a href="#" className="text-emerald-700 hover:text-emerald-600 font-medium">
-                      Terms of Service
+                      सेवा की शर्तों
                     </a>{' '}
-                    and{' '}
+                    और{' '}
                     <a href="#" className="text-emerald-700 hover:text-emerald-600 font-medium">
-                      Privacy Policy
-                    </a>
+                      गोपनीयता नीति
+                    </a>{' '}
+                    से सहमत हूं
                   </label>
                 </div>
               </>
@@ -282,7 +283,7 @@ export default function SignupPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Enter OTP *
+                    OTP दर्ज करें *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -307,15 +308,15 @@ export default function SignupPage() {
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    Change email or details
+                    ईमेल या विवरण बदलें
                   </button>
                 </div>
 
                 {process.env.NODE_ENV === 'development' && (
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <p className="text-sm text-blue-800 font-medium mb-1">Development Mode:</p>
+                    <p className="text-sm text-blue-800 font-medium mb-1">डेवलपमेंट मोड:</p>
                     <p className="text-sm text-blue-700">
-                      Check browser console for OTP code
+                      OTP कोड के लिए ब्राउज़र कंसोल देखें
                     </p>
                   </div>
                 )}
@@ -330,11 +331,11 @@ export default function SignupPage() {
               {isLoading ? (
                 <>
                   <div className="spinner mr-2"></div>
-                  Processing...
+                  प्रोसेस हो रहा है...
                 </>
               ) : (
                 <>
-                  {step === 'details' ? 'Send OTP' : 'Verify & Create Account'}
+                  {step === 'details' ? 'OTP भेजें' : 'सत्यापित करें और खाता बनाएं'}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
@@ -343,9 +344,9 @@ export default function SignupPage() {
           
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
             <p className="text-gray-700">
-              Already have an account?{' '}
+              पहले से खाता है?{' '}
               <Link href="/auth/login" className="text-emerald-700 hover:text-emerald-800 font-medium">
-                Sign in here
+                यहां साइन इन करें
               </Link>
             </p>
           </div>

@@ -23,12 +23,12 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     if (!formData.email || !formData.email.includes('@')) {
-      setError('Please enter a valid email address');
+      setError('कृपया एक वैध ईमेल पता दर्ज करें');
       return;
     }
 
     if (!formData.password) {
-      setError('Please enter your password');
+      setError('कृपया अपना पासवर्ड दर्ज करें');
       return;
     }
 
@@ -56,10 +56,10 @@ export default function LoginPage() {
         // Redirect to dashboard with a full page reload to ensure state is updated
         window.location.href = '/';
       } else {
-        setError(data.message || 'Invalid email or password');
+        setError(data.message || 'अमान्य ईमेल या पासवर्ड');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।');
     } finally {
       setIsLoading(false);
     }
@@ -82,12 +82,12 @@ export default function LoginPage() {
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900">Smart Farmer</span>
+              <span className="text-xl font-bold text-gray-900">स्मार्ट किसान</span>
             </div>
             <div className="text-sm text-gray-600">
-              New to Smart Farmer?{' '}
+              स्मार्ट किसान में नए हैं?{' '}
               <Link href="/auth/signup" className="text-emerald-600 hover:text-emerald-700 font-medium">
-                Sign up
+                साइन अप करें
               </Link>
             </div>
           </div>
@@ -102,8 +102,8 @@ export default function LoginPage() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-xl p-6 h-full border border-gray-100">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-                  <p className="text-gray-600">Sign in to access your farm dashboard</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">वापस आपका स्वागत है</h2>
+                  <p className="text-gray-600">अपने खेत डैशबोर्ड तक पहुंचने के लिए साइन इन करें</p>
                 </div>
 
                 {/* Features */}
@@ -116,8 +116,8 @@ export default function LoginPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">Crop Monitoring</h3>
-                      <p className="text-sm text-gray-500 mt-1">Track your crops with real-time insights</p>
+                      <h3 className="font-medium text-gray-900">फसल निगरानी</h3>
+                      <p className="text-sm text-gray-500 mt-1">वास्तविक समय की जानकारी के साथ अपनी फसलों को ट्रैक करें</p>
                     </div>
                   </div>
 
@@ -128,8 +128,8 @@ export default function LoginPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">Market Prices</h3>
-                      <p className="text-sm text-gray-500 mt-1">Get real-time mandi prices for your crops</p>
+                      <h3 className="font-medium text-gray-900">बाजार भाव</h3>
+                      <p className="text-sm text-gray-500 mt-1">अपनी फसलों के लिए वास्तविक समय मंडी भाव प्राप्त करें</p>
                     </div>
                   </div>
 
@@ -141,8 +141,8 @@ export default function LoginPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">Weather Alerts</h3>
-                      <p className="text-sm text-gray-500 mt-1">Receive farming advice based on weather</p>
+                      <h3 className="font-medium text-gray-900">मौसम अलर्ट</h3>
+                      <p className="text-sm text-gray-500 mt-1">मौसम के आधार पर खेती की सलाह प्राप्त करें</p>
                     </div>
                   </div>
                 </div>
@@ -153,8 +153,8 @@ export default function LoginPage() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-xl p-8 h-full border border-gray-100">
                 <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-                  <p className="text-gray-600 mt-2">Enter your email and password</p>
+                  <h1 className="text-3xl font-bold text-gray-900">साइन इन करें</h1>
+                  <p className="text-gray-600 mt-2">अपना ईमेल और पासवर्ड दर्ज करें</p>
                 </div>
 
                 {error && (
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
+                      ईमेल पता
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -182,7 +182,7 @@ export default function LoginPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="you@example.com"
+                        placeholder="आपका ईमेल"
                         className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-500 text-gray-900"
                         required
                       />
@@ -191,7 +191,7 @@ export default function LoginPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
+                      पासवर्ड
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -202,7 +202,7 @@ export default function LoginPage() {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="Enter your password"
+                        placeholder="अपना पासवर्ड दर्ज करें"
                         className="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-500 text-gray-900"
                         required
                       />
@@ -220,7 +220,7 @@ export default function LoginPage() {
                     </div>
                     <div className="mt-2 text-right">
                       <a href="#" className="text-sm text-emerald-600 hover:text-emerald-700">
-                        Forgot password?
+                        पासवर्ड भूल गए?
                       </a>
                     </div>
                   </div>
@@ -234,11 +234,11 @@ export default function LoginPage() {
                     {isLoading ? (
                       <>
                         <div className="spinner mr-2"></div>
-                        Signing in...
+                        साइन इन हो रहा है...
                       </>
                     ) : (
                       <>
-                        Sign In
+                        साइन इन करें
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </>
                     )}
@@ -254,7 +254,7 @@ export default function LoginPage() {
       <div className="w-full bg-white/90 backdrop-blur-sm border-t border-emerald-100 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-500">
-            Need help? Contact support@smartfarmer.com
+            मदद चाहिए? संपर्क करें support@smartfarmer.com
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-# Email OTP Authentication Setup
+qw  # Email OTP Authentication Setup
 
 This project uses **Email OTP** for user verification during signup and **Email + Password** for login.
 

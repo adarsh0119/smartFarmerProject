@@ -6,10 +6,13 @@ import { Bell, User, LogOut, Menu, X } from 'lucide-react';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Weather alert: Rain expected tomorrow', time: '2 hours ago' },
-    { id: 2, message: 'Wheat prices increased by 5%', time: '1 day ago' },
-    { id: 3, message: 'New government scheme announced', time: '2 days ago' },
+    { id: 1, message: 'मौसम अलर्ट: कल बारिश की संभावना', time: '2 घंटे पहले', read: false, type: 'weather' },
+    { id: 2, message: 'गेहूं के भाव में 5% की वृद्धि', time: '1 दिन पहले', read: false, type: 'price' },
+    { id: 3, message: 'नई सरकारी योजना की घोषणा', time: '2 दिन पहले', read: false, type: 'scheme' },
+    { id: 4, message: 'फसल रोग चेतावनी: पत्ती का रतुआ', time: '3 दिन पहले', read: true, type: 'disease' },
+    { id: 5, message: 'सिंचाई का समय: आज शाम 5 बजे', time: '5 दिन पहले', read: true, type: 'reminder' },
   ]);
 
   const [user, setUser] = useState<any>(null);
@@ -97,6 +100,33 @@ export default function Header() {
     window.location.href = '/auth/login';
   };
 
+  const markAsRead = (id: number) => {
+    setNotifications(notifications.map(notif => 
+      notif.id === id ? { ...notif, read: true } : notif
+    ));
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(notif => ({ ...notif, read: true })));
+  };
+
+  const deleteNotification = (id: number) => {
+    setNotifications(notifications.filter(notif => notif.id !== id));
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const getNotificationIcon = (type: string) => {
+    switch(type) {
+      case 'weather': return '🌦️';
+      case 'price': return '💰';
+      case 'scheme': return '📢';
+      case 'disease': return '🦠';
+      case 'reminder': return '⏰';
+      default: return '📌';
+    }
+  };
+
   return (
     <header className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white shadow-lg">
       <div className="container mx-auto px-4 py-3">
@@ -117,8 +147,8 @@ export default function Header() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-bold">Smart Farmer Assistant</h1>
-                <p className="text-sm text-emerald-100">Empowering farmers with technology</p>
+                <h1 className="text-xl font-bold">स्मार्ट किसान सहायक</h1>
+                <p className="text-sm text-emerald-100">तकनीक से किसानों को सशक्त बनाना</p>
               </div>
             </div>
           </div>
@@ -134,32 +164,89 @@ export default function Header() {
 
             {/* Notifications */}
             <div className="relative">
-              <button className="p-2 rounded-lg hover:bg-emerald-700 transition-colors relative">
+              <button 
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className="p-2 rounded-lg hover:bg-emerald-700 transition-colors relative"
+              >
                 <Bell size={20} />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {notifications.length}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                    {unreadCount}
                   </span>
                 )}
               </button>
               
               {/* Notifications dropdown */}
-              <div className="absolute right-0 mt-2 w-80 bg-white text-gray-800 rounded-lg shadow-xl z-50 hidden group-hover:block">
-                <div className="p-4">
-                  <h3 className="font-semibold mb-3">Notifications</h3>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div key={notification.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
-                        <p className="text-sm">{notification.message}</p>
-                        <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
-                      </div>
-                    ))}
+              {isNotificationOpen && (
+                <div className="absolute right-0 mt-2 w-96 bg-white text-gray-800 rounded-lg shadow-2xl z-50 border border-gray-200">
+                  <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="font-bold text-lg">सूचनाएं</h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-xs text-emerald-600 hover:text-emerald-800 font-medium"
+                      >
+                        सभी को पढ़ा हुआ चिह्नित करें
+                      </button>
+                    )}
                   </div>
-                  {notifications.length === 0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">No notifications</p>
+                  
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+                              !notification.read ? 'bg-emerald-50' : ''
+                            }`}
+                            onClick={() => markAsRead(notification.id)}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="text-2xl flex-shrink-0">
+                                {getNotificationIcon(notification.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm ${!notification.read ? 'font-semibold' : ''}`}>
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center justify-between mt-1">
+                                  <p className="text-xs text-gray-500">{notification.time}</p>
+                                  {!notification.read && (
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                  )}
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notification.id);
+                                }}
+                                className="text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center">
+                        <Bell size={48} className="mx-auto text-gray-300 mb-3" />
+                        <p className="text-sm text-gray-500">कोई सूचना नहीं</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {notifications.length > 0 && (
+                    <div className="p-3 border-t border-gray-200 text-center">
+                      <button className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
+                        सभी सूचनाएं देखें
+                      </button>
+                    </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
 
             {/* User Profile */}
@@ -172,9 +259,9 @@ export default function Header() {
                   <User size={18} />
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium">{user?.name || 'Guest User'}</p>
+                  <p className="text-sm font-medium">{user?.name || 'अतिथि उपयोगकर्ता'}</p>
                   <p className="text-xs text-emerald-100">
-                    {user ? (userLocation || 'Loading location...') : 'Not logged in'}
+                    {user ? (userLocation || 'स्थान लोड हो रहा है...') : 'लॉगिन नहीं किया'}
                   </p>
                 </div>
               </button>
@@ -188,11 +275,11 @@ export default function Header() {
                         <User size={20} />
                       </div>
                       <div>
-                        <p className="font-semibold">{user?.name || 'Guest User'}</p>
-                        <p className="text-sm text-gray-500">{user?.email || 'No email'}</p>
+                        <p className="font-semibold">{user?.name || 'अतिथि उपयोगकर्ता'}</p>
+                        <p className="text-sm text-gray-500">{user?.email || 'कोई ईमेल नहीं'}</p>
                         {user && (
                           <p className="text-xs text-gray-500 mt-1">
-                            {user.farmSize && `${user.farmSize} acres`}
+                            {user.farmSize && `${user.farmSize} एकड़`}
                             {userLocation && ` • ${userLocation}`}
                           </p>
                         )}
@@ -202,13 +289,13 @@ export default function Header() {
                   
                   <div className="p-2">
                     <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      Profile Settings
+                      प्रोफाइल सेटिंग्स
                     </button>
                     <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      My Farm Details
+                      मेरे खेत का विवरण
                     </button>
                     <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      Help & Support
+                      मदद और सहायता
                     </button>
                   </div>
                   
@@ -219,7 +306,7 @@ export default function Header() {
                         className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded hover:bg-red-50 text-red-600 text-sm font-medium"
                       >
                         <LogOut size={16} />
-                        <span>Logout</span>
+                        <span>लॉगआउट</span>
                       </button>
                     ) : (
                       <button
@@ -227,7 +314,7 @@ export default function Header() {
                         className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded hover:bg-emerald-50 text-emerald-600 text-sm font-medium"
                       >
                         <User size={16} />
-                        <span>Login / Sign Up</span>
+                        <span>लॉगिन / साइन अप</span>
                       </button>
                     )}
                   </div>
