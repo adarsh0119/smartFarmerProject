@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Store, ShoppingCart, Plus, Search, Filter, MapPin, Phone, User, X } from 'lucide-react';
+import { Store, ShoppingCart, Plus, Search, Filter, MapPin, Phone, User, X, Trash2, Keyboard } from 'lucide-react';
+import HindiKeyboard from '@/components/common/HindiKeyboard';
 
 interface MarketItem {
   id: number;
@@ -18,120 +19,7 @@ interface MarketItem {
   postedDate: string;
 }
 
-const marketItems: MarketItem[] = [
-  {
-    id: 1,
-    type: 'बेचें',
-    category: 'अनाज',
-    item: 'गेहूं',
-    price: 2100,
-    unit: 'क्विंटल',
-    quantity: '50 क्विंटल',
-    seller: 'राजेश कुमार',
-    location: 'आपके आस-पास',
-    phone: '9876543210',
-    description: 'उच्च गुणवत्ता वाला गेहूं, ताजा कटाई',
-    postedDate: '2 दिन पहले'
-  },
-  {
-    id: 2,
-    type: 'खरीदें',
-    category: 'उर्वरक',
-    item: 'यूरिया',
-    price: 280,
-    unit: 'बोरी',
-    quantity: '100 बोरी',
-    seller: 'सुरेश एग्रो स्टोर',
-    location: 'आपके आस-पास',
-    phone: '9876543211',
-    description: 'सरकारी दर पर यूरिया उपलब्ध',
-    postedDate: '1 दिन पहले'
-  },
-  {
-    id: 3,
-    type: 'बेचें',
-    category: 'सब्जी',
-    item: 'टमाटर',
-    price: 25,
-    unit: 'किलो',
-    quantity: '500 किलो',
-    seller: 'मोहन सिंह',
-    location: 'आपके आस-पास',
-    phone: '9876543212',
-    description: 'ताजा टमाटर, थोक में उपलब्ध',
-    postedDate: '3 घंटे पहले'
-  },
-  {
-    id: 4,
-    type: 'खरीदें',
-    category: 'बीज',
-    item: 'धान के बीज',
-    price: 1200,
-    unit: 'किलो',
-    quantity: '20 किलो',
-    seller: 'किसान बीज भंडार',
-    location: 'आपके आस-पास',
-    phone: '9876543213',
-    description: 'प्रमाणित धान के बीज, उच्च उपज',
-    postedDate: '5 दिन पहले'
-  },
-  {
-    id: 5,
-    type: 'बेचें',
-    category: 'अनाज',
-    item: 'धान',
-    price: 2050,
-    unit: 'क्विंटल',
-    quantity: '30 क्विंटल',
-    seller: 'विक्रम यादव',
-    location: 'आपके आस-पास',
-    phone: '9876543214',
-    description: 'बासमती धान, अच्छी गुणवत्ता',
-    postedDate: '1 दिन पहले'
-  },
-  {
-    id: 6,
-    type: 'खरीदें',
-    category: 'कीटनाशक',
-    item: 'कीटनाशक स्प्रे',
-    price: 450,
-    unit: 'लीटर',
-    quantity: '50 लीटर',
-    seller: 'अग्रो केमिकल्स',
-    location: 'आपके आस-पास',
-    phone: '9876543215',
-    description: 'सभी प्रकार के कीटनाशक उपलब्ध',
-    postedDate: '2 दिन पहले'
-  },
-  {
-    id: 7,
-    type: 'बेचें',
-    category: 'सब्जी',
-    item: 'प्याज',
-    price: 30,
-    unit: 'किलो',
-    quantity: '1000 किलो',
-    seller: 'रामप्रसाद',
-    location: 'आपके आस-पास',
-    phone: '9876543216',
-    description: 'लाल प्याज, थोक भाव',
-    postedDate: '6 घंटे पहले'
-  },
-  {
-    id: 8,
-    type: 'खरीदें',
-    category: 'उपकरण',
-    item: 'ट्रैक्टर किराए पर',
-    price: 800,
-    unit: 'दिन',
-    quantity: 'उपलब्ध',
-    seller: 'किसान सेवा केंद्र',
-    location: 'आपके आस-पास',
-    phone: '9876543217',
-    description: 'सभी प्रकार के कृषि उपकरण किराए पर',
-    postedDate: '4 दिन पहले'
-  }
-];
+const marketItems: MarketItem[] = [];
 
 export default function Marketplace() {
   const [selectedType, setSelectedType] = useState<'सभी' | 'खरीदें' | 'बेचें'>('सभी');
@@ -140,6 +28,8 @@ export default function Marketplace() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MarketItem | null>(null);
   const [items, setItems] = useState<MarketItem[]>(marketItems);
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const [activeField, setActiveField] = useState<string>('');
   
   // Form state for adding new advertisement
   const [formData, setFormData] = useState({
@@ -229,6 +119,33 @@ export default function Marketplace() {
     
     setShowAddModal(false);
     alert('आपका विज्ञापन सफलतापूर्वक जोड़ा गया!');
+  };
+
+  const handleDeleteItem = (itemId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening item details
+    if (confirm('क्या आप वाकई इस विज्ञापन को हटाना चाहते हैं?')) {
+      setItems(items.filter(item => item.id !== itemId));
+      alert('विज्ञापन सफलतापूर्वक हटा दिया गया!');
+    }
+  };
+
+  const handleKeyboardInsert = (key: string) => {
+    if (key === 'backspace') {
+      setFormData(prev => ({
+        ...prev,
+        [activeField]: prev[activeField as keyof typeof prev].slice(0, -1)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [activeField]: prev[activeField as keyof typeof prev] + key
+      }));
+    }
+  };
+
+  const openKeyboard = (fieldName: string) => {
+    setActiveField(fieldName);
+    setShowKeyboard(true);
   };
 
   const filteredItems = items.filter(item => {
@@ -354,16 +271,39 @@ export default function Marketplace() {
                   <User className="w-4 h-4 mr-1" />
                   <span>{item.seller}</span>
                 </div>
-                <span className="text-xs text-gray-500">{item.postedDate}</span>
+                <div className="flex flex-col items-end space-y-1">
+                  <button
+                    onClick={(e) => handleDeleteItem(item.id, e)}
+                    className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors flex items-center space-x-1"
+                    title="विज्ञापन हटाएं"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>हटाएं</span>
+                  </button>
+                  <span className="text-xs text-gray-500">{item.postedDate}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         {filteredItems.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <Store className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p>कोई उत्पाद नहीं मिला</p>
+          <div className="text-center py-12 text-gray-500">
+            <Store className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium mb-2">कोई विज्ञापन नहीं मिला</p>
+            <p className="text-sm text-gray-400 mb-4">
+              {items.length === 0 
+                ? 'अभी तक कोई विज्ञापन नहीं है। पहले विज्ञापन देने वाले बनें!'
+                : 'इस श्रेणी में कोई उत्पाद नहीं मिला। अलग फ़िल्टर आज़माएं।'
+              }
+            </p>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center space-x-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>पहला विज्ञापन दें</span>
+            </button>
           </div>
         )}
       </div>
@@ -463,15 +403,22 @@ export default function Marketplace() {
 
       {/* Add Item Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-900">विज्ञापन दें</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-red-50 rounded-lg transition-colors group"
+                title="बंद करें"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6 text-gray-500 group-hover:text-red-600" />
               </button>
             </div>
 
@@ -595,18 +542,29 @@ export default function Marketplace() {
               </div>
 
               {/* Seller Name */}
+              {/* Seller Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   आपका नाम *
                 </label>
-                <input
-                  type="text"
-                  value={formData.seller}
-                  onChange={(e) => setFormData({ ...formData, seller: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="आपका पूरा नाम"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.seller}
+                    onChange={(e) => setFormData({ ...formData, seller: e.target.value })}
+                    className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="आपका पूरा नाम"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => openKeyboard('seller')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                    title="हिंदी कीबोर्ड"
+                  >
+                    <Keyboard className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Location */}
@@ -614,14 +572,24 @@ export default function Marketplace() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   स्थान *
                 </label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="गांव/शहर, जिला, राज्य"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="गांव/शहर, जिला, राज्य"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => openKeyboard('location')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                    title="हिंदी कीबोर्ड"
+                  >
+                    <Keyboard className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Phone */}
@@ -645,14 +613,24 @@ export default function Marketplace() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   विवरण *
                 </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="उत्पाद के बारे में विस्तार से बताएं..."
-                  rows={3}
-                  required
-                />
+                <div className="relative">
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="उत्पाद के बारे में विस्तार से बताएं..."
+                    rows={3}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => openKeyboard('description')}
+                    className="absolute right-2 top-2 p-2 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                    title="हिंदी कीबोर्ड"
+                  >
+                    <Keyboard className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Buttons */}
@@ -673,6 +651,14 @@ export default function Marketplace() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Hindi Keyboard */}
+      {showKeyboard && (
+        <HindiKeyboard
+          onInsert={handleKeyboardInsert}
+          onClose={() => setShowKeyboard(false)}
+        />
       )}
     </>
   );

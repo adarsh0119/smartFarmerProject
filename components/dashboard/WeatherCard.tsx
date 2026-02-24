@@ -32,22 +32,16 @@ export default function WeatherCard() {
       // First, always get the location name using a free geocoding service
       let locationName = '';
       try {
-        // Use Nominatim (OpenStreetMap) for reverse geocoding - it's free and doesn't need API key
-        // Note: Nominatim requires a User-Agent header as per their usage policy
+        // Use BigDataCloud for reverse geocoding - it's free and doesn't have CORS issues
         const geoResponse = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`,
-          {
-            headers: {
-              'User-Agent': 'SmartFarmerAssistant/1.0'
-            }
-          }
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=hi`
         );
         
         if (geoResponse.ok) {
           const geoData = await geoResponse.json();
-          const city = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.state_district || geoData.address.state;
-          const country = geoData.address.country_code?.toUpperCase() || geoData.address.country;
-          locationName = `${city}, ${country}`;
+          const city = geoData.city || geoData.locality || geoData.principalSubdivision;
+          const country = geoData.countryCode || 'IN';
+          locationName = city ? `${city}, ${country}` : `${country}`;
           
           setLocation(locationName);
           

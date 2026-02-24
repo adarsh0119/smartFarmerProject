@@ -7,13 +7,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: 'मौसम अलर्ट: कल बारिश की संभावना', time: '2 घंटे पहले', read: false, type: 'weather' },
-    { id: 2, message: 'गेहूं के भाव में 5% की वृद्धि', time: '1 दिन पहले', read: false, type: 'price' },
-    { id: 3, message: 'नई सरकारी योजना की घोषणा', time: '2 दिन पहले', read: false, type: 'scheme' },
-    { id: 4, message: 'फसल रोग चेतावनी: पत्ती का रतुआ', time: '3 दिन पहले', read: true, type: 'disease' },
-    { id: 5, message: 'सिंचाई का समय: आज शाम 5 बजे', time: '5 दिन पहले', read: true, type: 'reminder' },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const [user, setUser] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<string>('');
@@ -152,17 +146,6 @@ export default function Header() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const getNotificationIcon = (type: string) => {
-    switch(type) {
-      case 'weather': return '🌦️';
-      case 'price': return '💰';
-      case 'scheme': return '📢';
-      case 'disease': return '🦠';
-      case 'reminder': return '⏰';
-      default: return '📌';
-    }
-  };
-
   return (
     <header className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white shadow-lg">
       <div className="container mx-auto px-4 py-3">
@@ -221,14 +204,6 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-96 bg-white text-gray-800 rounded-lg shadow-2xl z-50 border border-gray-200">
                   <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 className="font-bold text-lg">सूचनाएं</h3>
-                    {unreadCount > 0 && (
-                      <button
-                        onClick={markAllAsRead}
-                        className="text-xs text-emerald-600 hover:text-emerald-800 font-medium"
-                      >
-                        सभी को पढ़ा हुआ चिह्नित करें
-                      </button>
-                    )}
                   </div>
                   
                   <div className="max-h-96 overflow-y-auto">
@@ -243,9 +218,6 @@ export default function Header() {
                             onClick={() => markAsRead(notification.id)}
                           >
                             <div className="flex items-start space-x-3">
-                              <div className="text-2xl flex-shrink-0">
-                                {getNotificationIcon(notification.type)}
-                              </div>
                               <div className="flex-1 min-w-0">
                                 <p className={`text-sm ${!notification.read ? 'font-semibold' : ''}`}>
                                   {notification.message}
@@ -274,17 +246,10 @@ export default function Header() {
                       <div className="p-8 text-center">
                         <Bell size={48} className="mx-auto text-gray-300 mb-3" />
                         <p className="text-sm text-gray-500">कोई सूचना नहीं</p>
+                        <p className="text-xs text-gray-400 mt-1">नई सूचनाएं यहां दिखाई देंगी</p>
                       </div>
                     )}
                   </div>
-                  
-                  {notifications.length > 0 && (
-                    <div className="p-3 border-t border-gray-200 text-center">
-                      <button className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
-                        सभी सूचनाएं देखें
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
