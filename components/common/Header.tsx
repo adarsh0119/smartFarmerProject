@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { Bell, User, LogOut, Menu, X, MapPin } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,8 +17,42 @@ export default function Header() {
 
   const [user, setUser] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<string>('');
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   useEffect(() => {
+    // Get user's current location using browser geolocation API
+    const getCurrentLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              const { latitude, longitude } = position.coords;
+              // Use reverse geocoding to get location name
+              const response = await fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=hi`
+              );
+              const data = await response.json();
+              const locationName = data.city || data.locality || data.principalSubdivision || 'भारत';
+              setUserLocation(locationName);
+              setIsLoadingLocation(false);
+            } catch (error) {
+              console.error('Error getting location name:', error);
+              setUserLocation('भारत');
+              setIsLoadingLocation(false);
+            }
+          },
+          (error) => {
+            console.error('Error getting location:', error);
+            setUserLocation('भारत');
+            setIsLoadingLocation(false);
+          }
+        );
+      } else {
+        setUserLocation('भारत');
+        setIsLoadingLocation(false);
+      }
+    };
+
     // Function to check user data
     const checkUser = () => {
       const userData = localStorage.getItem('user');
@@ -34,6 +68,7 @@ export default function Header() {
               const { name } = JSON.parse(weatherLocation);
               if (name && name !== 'Fetching location...') {
                 setUserLocation(name);
+                setIsLoadingLocation(false);
                 return;
               }
             } catch (err) {
@@ -43,19 +78,20 @@ export default function Header() {
           
           // Fallback to user state
           if (parsedUser.state) {
-            const locationStr = parsedUser.country 
-              ? `${parsedUser.state}, ${parsedUser.country}`
-              : parsedUser.state;
-            setUserLocation(locationStr);
+            setUserLocation(parsedUser.state);
+            setIsLoadingLocation(false);
           } else {
-            setUserLocation('Location not set');
+            // Get current location if no saved location
+            getCurrentLocation();
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
+          getCurrentLocation();
         }
       } else {
         setUser(null);
-        setUserLocation('');
+        // Get current location even for guest users
+        getCurrentLocation();
       }
     };
 
@@ -153,14 +189,18 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Right side actions */}
+          {/* Right side with Location and Actions */}
           <div className="flex items-center space-x-4">
-            {/* Language Toggle */}
-            <button className="hidden md:flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
-              <span className="text-sm font-medium">हिंदी</span>
-              <span className="text-xs">/</span>
-              <span className="text-sm font-medium">English</span>
-            </button>
+            {/* Live Location */}
+            <div className="hidden lg:flex items-center space-x-2 bg-emerald-700/50 px-4 py-2 rounded-lg backdrop-blur-sm border border-emerald-500/30">
+              <MapPin size={18} className="text-emerald-200 animate-pulse" />
+              <div className="text-left">
+                <p className="text-xs text-emerald-200">आपका स्थान</p>
+                <p className="text-sm font-semibold">
+                  {isLoadingLocation ? 'लोड हो रहा है...' : userLocation}
+                </p>
+              </div>
+            </div>
 
             {/* Notifications */}
             <div className="relative">
@@ -261,7 +301,7 @@ export default function Header() {
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium">{user?.name || 'अतिथि उपयोगकर्ता'}</p>
                   <p className="text-xs text-emerald-100">
-                    {user ? (userLocation || 'स्थान लोड हो रहा है...') : 'लॉगिन नहीं किया'}
+                    {user ? (user.farmSize ? `${user.farmSize} एकड़` : 'किसान') : 'लॉगिन नहीं किया'}
                   </p>
                 </div>
               </button>
@@ -277,10 +317,9 @@ export default function Header() {
                       <div>
                         <p className="font-semibold">{user?.name || 'अतिथि उपयोगकर्ता'}</p>
                         <p className="text-sm text-gray-500">{user?.email || 'कोई ईमेल नहीं'}</p>
-                        {user && (
+                        {user && user.farmSize && (
                           <p className="text-xs text-gray-500 mt-1">
-                            {user.farmSize && `${user.farmSize} एकड़`}
-                            {userLocation && ` • ${userLocation}`}
+                            {user.farmSize} एकड़
                           </p>
                         )}
                       </div>

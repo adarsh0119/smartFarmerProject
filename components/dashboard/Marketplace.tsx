@@ -28,7 +28,7 @@ const marketItems: MarketItem[] = [
     unit: 'क्विंटल',
     quantity: '50 क्विंटल',
     seller: 'राजेश कुमार',
-    location: 'करनाल, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543210',
     description: 'उच्च गुणवत्ता वाला गेहूं, ताजा कटाई',
     postedDate: '2 दिन पहले'
@@ -42,7 +42,7 @@ const marketItems: MarketItem[] = [
     unit: 'बोरी',
     quantity: '100 बोरी',
     seller: 'सुरेश एग्रो स्टोर',
-    location: 'पानीपत, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543211',
     description: 'सरकारी दर पर यूरिया उपलब्ध',
     postedDate: '1 दिन पहले'
@@ -56,7 +56,7 @@ const marketItems: MarketItem[] = [
     unit: 'किलो',
     quantity: '500 किलो',
     seller: 'मोहन सिंह',
-    location: 'अंबाला, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543212',
     description: 'ताजा टमाटर, थोक में उपलब्ध',
     postedDate: '3 घंटे पहले'
@@ -70,7 +70,7 @@ const marketItems: MarketItem[] = [
     unit: 'किलो',
     quantity: '20 किलो',
     seller: 'किसान बीज भंडार',
-    location: 'यमुनानगर, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543213',
     description: 'प्रमाणित धान के बीज, उच्च उपज',
     postedDate: '5 दिन पहले'
@@ -84,7 +84,7 @@ const marketItems: MarketItem[] = [
     unit: 'क्विंटल',
     quantity: '30 क्विंटल',
     seller: 'विक्रम यादव',
-    location: 'करनाल, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543214',
     description: 'बासमती धान, अच्छी गुणवत्ता',
     postedDate: '1 दिन पहले'
@@ -98,7 +98,7 @@ const marketItems: MarketItem[] = [
     unit: 'लीटर',
     quantity: '50 लीटर',
     seller: 'अग्रो केमिकल्स',
-    location: 'हिसार, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543215',
     description: 'सभी प्रकार के कीटनाशक उपलब्ध',
     postedDate: '2 दिन पहले'
@@ -112,7 +112,7 @@ const marketItems: MarketItem[] = [
     unit: 'किलो',
     quantity: '1000 किलो',
     seller: 'रामप्रसाद',
-    location: 'रोहतक, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543216',
     description: 'लाल प्याज, थोक भाव',
     postedDate: '6 घंटे पहले'
@@ -126,7 +126,7 @@ const marketItems: MarketItem[] = [
     unit: 'दिन',
     quantity: 'उपलब्ध',
     seller: 'किसान सेवा केंद्र',
-    location: 'सोनीपत, हरियाणा',
+    location: 'आपके आस-पास',
     phone: '9876543217',
     description: 'सभी प्रकार के कृषि उपकरण किराए पर',
     postedDate: '4 दिन पहले'

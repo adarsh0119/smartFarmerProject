@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, Minus, Filter, Download, MapPin, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Download, MapPin, Calendar, Navigation, Phone, Clock, Truck } from 'lucide-react';
 import { statesAndDistricts } from '@/lib/utils/districts';
 
 const cropPrices = {
@@ -10,7 +10,11 @@ const cropPrices = {
     'धान': { msp: 2040, unit: 'क्विंटल' },
     'मक्का': { msp: 1870, unit: 'क्विंटल' },
     'बाजरा': { msp: 2350, unit: 'क्विंटल' },
-    'ज्वार': { msp: 2970, unit: 'क्विंटल' }
+    'ज्वार': { msp: 2970, unit: 'क्विंटल' },
+    'रागी': { msp: 3377, unit: 'क्विंटल' },
+    'जौ': { msp: 1635, unit: 'क्विंटल' },
+    'कोदो': { msp: 3000, unit: 'क्विंटल' },
+    'कुटकी': { msp: 3500, unit: 'क्विंटल' }
   },
   'दलहन': {
     'चना': { msp: 5230, unit: 'क्विंटल' },
@@ -18,7 +22,11 @@ const cropPrices = {
     'उड़द': { msp: 6300, unit: 'क्विंटल' },
     'अरहर': { msp: 6600, unit: 'क्विंटल' },
     'मसूर': { msp: 5500, unit: 'क्विंटल' },
-    'मटर': { msp: 5000, unit: 'क्विंटल' }
+    'मटर': { msp: 5000, unit: 'क्विंटल' },
+    'मोठ': { msp: 6930, unit: 'क्विंटल' },
+    'कुलथी': { msp: 5100, unit: 'क्विंटल' },
+    'लोबिया': { msp: 5500, unit: 'क्विंटल' },
+    'राजमा': { msp: 5800, unit: 'क्विंटल' }
   },
   'तिलहन': {
     'सरसों': { msp: 5050, unit: 'क्विंटल' },
@@ -26,7 +34,11 @@ const cropPrices = {
     'सोयाबीन': { msp: 4300, unit: 'क्विंटल' },
     'सूरजमुखी': { msp: 6015, unit: 'क्विंटल' },
     'तिल': { msp: 7307, unit: 'क्विंटल' },
-    'अलसी': { msp: 5650, unit: 'क्विंटल' }
+    'अलसी': { msp: 5650, unit: 'क्विंटल' },
+    'कुसुम': { msp: 5441, unit: 'क्विंटल' },
+    'नाइजर': { msp: 6930, unit: 'क्विंटल' },
+    'रेपसीड': { msp: 5050, unit: 'क्विंटल' },
+    'तोरिया': { msp: 5050, unit: 'क्विंटल' }
   },
   'सब्जियां': {
     'आलू': { msp: 2250, unit: 'क्विंटल' },
@@ -40,12 +52,86 @@ const cropPrices = {
     'मूली': { msp: 1500, unit: 'क्विंटल' },
     'पालक': { msp: 1000, unit: 'क्विंटल' },
     'धनिया': { msp: 3000, unit: 'क्विंटल' },
-    'हरी मिर्च': { msp: 5000, unit: 'क्विंटल' }
+    'हरी मिर्च': { msp: 5000, unit: 'क्विंटल' },
+    'फूलगोभी': { msp: 1500, unit: 'क्विंटल' },
+    'पत्तागोभी': { msp: 1200, unit: 'क्विंटल' },
+    'शिमला मिर्च': { msp: 3000, unit: 'क्विंटल' },
+    'खीरा': { msp: 1500, unit: 'क्विंटल' },
+    'लौकी': { msp: 1200, unit: 'क्विंटल' },
+    'तोरई': { msp: 1500, unit: 'क्विंटल' },
+    'करेला': { msp: 2000, unit: 'क्विंटल' },
+    'कद्दू': { msp: 1000, unit: 'क्विंटल' },
+    'टिंडा': { msp: 1500, unit: 'क्विंटल' },
+    'परवल': { msp: 2500, unit: 'क्विंटल' },
+    'सेम': { msp: 2000, unit: 'क्विंटल' },
+    'मेथी': { msp: 2500, unit: 'क्विंटल' },
+    'बथुआ': { msp: 1500, unit: 'क्विंटल' },
+    'सरसों साग': { msp: 1200, unit: 'क्विंटल' },
+    'चौलाई': { msp: 1500, unit: 'क्विंटल' },
+    'शलजम': { msp: 1200, unit: 'क्विंटल' },
+    'चुकंदर': { msp: 1800, unit: 'क्विंटल' },
+    'अदरक': { msp: 8000, unit: 'क्विंटल' },
+    'लहसुन': { msp: 6000, unit: 'क्विंटल' }
+  },
+  'फल': {
+    'आम': { msp: 3000, unit: 'क्विंटल' },
+    'केला': { msp: 2500, unit: 'क्विंटल' },
+    'अमरूद': { msp: 2000, unit: 'क्विंटल' },
+    'पपीता': { msp: 1500, unit: 'क्विंटल' },
+    'संतरा': { msp: 3500, unit: 'क्विंटल' },
+    'नींबू': { msp: 4000, unit: 'क्विंटल' },
+    'अनार': { msp: 5000, unit: 'क्विंटल' },
+    'सेब': { msp: 6000, unit: 'क्विंटल' },
+    'अंगूर': { msp: 5500, unit: 'क्विंटल' },
+    'तरबूज': { msp: 1200, unit: 'क्विंटल' },
+    'खरबूजा': { msp: 1500, unit: 'क्विंटल' },
+    'लीची': { msp: 4000, unit: 'क्विंटल' },
+    'अनानास': { msp: 2500, unit: 'क्विंटल' },
+    'चीकू': { msp: 2000, unit: 'क्विंटल' },
+    'बेर': { msp: 1800, unit: 'क्विंटल' },
+    'आंवला': { msp: 2500, unit: 'क्विंटल' },
+    'बेल': { msp: 1500, unit: 'क्विंटल' },
+    'जामुन': { msp: 2000, unit: 'क्विंटल' },
+    'कटहल': { msp: 1800, unit: 'क्विंटल' },
+    'शरीफा': { msp: 3000, unit: 'क्विंटल' }
+  },
+  'मसाले': {
+    'हल्दी': { msp: 7500, unit: 'क्विंटल' },
+    'धनिया बीज': { msp: 7000, unit: 'क्विंटल' },
+    'जीरा': { msp: 12000, unit: 'क्विंटल' },
+    'मेथी': { msp: 6500, unit: 'क्विंटल' },
+    'सौंफ': { msp: 8000, unit: 'क्विंटल' },
+    'अजवाइन': { msp: 9000, unit: 'क्विंटल' },
+    'काली मिर्च': { msp: 45000, unit: 'क्विंटल' },
+    'इलायची': { msp: 100000, unit: 'क्विंटल' },
+    'लौंग': { msp: 80000, unit: 'क्विंटल' },
+    'दालचीनी': { msp: 50000, unit: 'क्विंटल' },
+    'तेजपत्ता': { msp: 30000, unit: 'क्विंटल' },
+    'सूखी मिर्च': { msp: 15000, unit: 'क्विंटल' }
   },
   'नकदी फसल': {
     'गन्ना': { msp: 315, unit: 'क्विंटल' },
     'कपास': { msp: 6620, unit: 'क्विंटल' },
-    'जूट': { msp: 4750, unit: 'क्विंटल' }
+    'जूट': { msp: 4750, unit: 'क्विंटल' },
+    'तंबाकू': { msp: 5000, unit: 'क्विंटल' },
+    'चाय': { msp: 3500, unit: 'क्विंटल' },
+    'कॉफी': { msp: 8000, unit: 'क्विंटल' },
+    'रबर': { msp: 15000, unit: 'क्विंटल' }
+  },
+  'चारा फसल': {
+    'बरसीम': { msp: 800, unit: 'क्विंटल' },
+    'रिजका': { msp: 900, unit: 'क्विंटल' },
+    'ज्वार चारा': { msp: 700, unit: 'क्विंटल' },
+    'मक्का चारा': { msp: 750, unit: 'क्विंटल' },
+    'नेपियर घास': { msp: 600, unit: 'क्विंटल' }
+  },
+  'फूल': {
+    'गुलाब': { msp: 5000, unit: 'क्विंटल' },
+    'गेंदा': { msp: 3000, unit: 'क्विंटल' },
+    'गुलदाउदी': { msp: 3500, unit: 'क्विंटल' },
+    'रजनीगंधा': { msp: 4000, unit: 'क्विंटल' },
+    'ग्लेडियोलस': { msp: 4500, unit: 'क्विंटल' },
+    'कमल': { msp: 6000, unit: 'क्विंटल' }
   }
 };
 
@@ -187,7 +273,9 @@ export default function MandiPrices() {
         
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">राज्य</label>
+            <label className="block text-sm mb-2">
+              <span className="font-bold text-gray-800 bg-green-100 px-2 py-1 rounded text-base">राज्य</span>
+            </label>
             <select
               value={selectedState}
               onChange={(e) => {
@@ -203,7 +291,9 @@ export default function MandiPrices() {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-600 mb-1">जिला/मंडी</label>
+            <label className="block text-sm mb-2">
+              <span className="font-bold text-gray-800 bg-green-100 px-2 py-1 rounded text-base">जिला/मंडी</span>
+            </label>
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -218,7 +308,9 @@ export default function MandiPrices() {
 
         {/* Crop Filter */}
         <div>
-          <label className="block text-xs text-gray-600 mb-1">फसल चुनें</label>
+          <label className="block text-sm mb-2">
+            <span className="font-bold text-gray-800 bg-green-100 px-2 py-1 rounded text-base">फसल चुनें</span>
+          </label>
           <select
             value={selectedCrop}
             onChange={(e) => setSelectedCrop(e.target.value)}
@@ -250,8 +342,32 @@ export default function MandiPrices() {
               ))}
             </optgroup>
             
+            <optgroup label="🍎 फल">
+              {Object.keys(cropPrices['फल']).map((crop) => (
+                <option key={crop} value={crop}>{crop}</option>
+              ))}
+            </optgroup>
+            
+            <optgroup label="🌶️ मसाले">
+              {Object.keys(cropPrices['मसाले']).map((crop) => (
+                <option key={crop} value={crop}>{crop}</option>
+              ))}
+            </optgroup>
+            
             <optgroup label="💰 नकदी फसल">
               {Object.keys(cropPrices['नकदी फसल']).map((crop) => (
+                <option key={crop} value={crop}>{crop}</option>
+              ))}
+            </optgroup>
+            
+            <optgroup label="🌿 चारा फसल">
+              {Object.keys(cropPrices['चारा फसल']).map((crop) => (
+                <option key={crop} value={crop}>{crop}</option>
+              ))}
+            </optgroup>
+            
+            <optgroup label="🌸 फूल">
+              {Object.keys(cropPrices['फूल']).map((crop) => (
                 <option key={crop} value={crop}>{crop}</option>
               ))}
             </optgroup>

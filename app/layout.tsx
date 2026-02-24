@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="hi">
       <body className={`${inter.className} bg-gray-50 text-gray-900`}>
         <div className="min-h-screen flex flex-col">
           <Header />

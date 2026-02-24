@@ -91,8 +91,34 @@ export default function DiseaseDetection() {
     }
   };
 
-  const handleCameraClick = () => {
-    cameraInputRef.current?.click();
+  const handleCameraClick = async () => {
+    // Check if device has camera support
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('आपका ब्राउज़र कैमरा का समर्थन नहीं करता। कृपया तस्वीर अपलोड करें।');
+      return;
+    }
+
+    try {
+      // Request camera permission and access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      
+      // Stop the stream immediately as we just needed permission
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Now trigger the file input with camera
+      cameraInputRef.current?.click();
+    } catch (error: any) {
+      if (error.name === 'NotAllowedError') {
+        alert('कैमरा की अनुमति नहीं दी गई। कृपया ब्राउज़र सेटिंग्स में कैमरा की अनुमति दें।');
+      } else if (error.name === 'NotFoundError') {
+        alert('कोई कैमरा नहीं मिला। कृपया तस्वीर अपलोड करें।');
+      } else {
+        alert('कैमरा एक्सेस करने में त्रुटि। कृपया तस्वीर अपलोड करें।');
+      }
+      console.error('Camera error:', error);
+    }
   };
 
   const handleAnalyze = () => {
@@ -170,6 +196,7 @@ export default function DiseaseDetection() {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-amber-400 transition-colors">
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 mb-4">प्रभावित फसल की पत्तियों की तस्वीर अपलोड करें</p>
+            <p className="text-xs text-gray-500 mb-4">💡 सुझाव: मोबाइल पर कैमरा बेहतर काम करता है</p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

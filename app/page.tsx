@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TrendingUp, Users, Crop, DollarSign, Cloud, Sprout } from 'lucide-react';
+import AIChatbot from '@/components/common/AIChatbot';
 
 export default function HomePage() {
   const router = useRouter();
@@ -116,7 +117,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <AIChatbot />
+      <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -277,5 +280,6 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

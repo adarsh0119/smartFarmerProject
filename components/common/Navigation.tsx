@@ -15,6 +15,8 @@ import {
   Award,
   Settings,
   HelpCircle,
+  Beef,
+  Video,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,6 +27,8 @@ const navItems = [
   { id: 'prices', label: 'मंडी भाव', icon: TrendingUp, href: '/prices' },
   { id: 'calendar', label: 'फसल कैलेंडर', icon: Calendar, href: '/calendar' },
   { id: 'expenses', label: 'खर्च ट्रैकर', icon: DollarSign, href: '/expenses' },
+  { id: 'livestock', label: 'पशुपालन', icon: Beef, href: '/livestock' },
+  { id: 'videos', label: 'वीडियो ट्यूटोरियल', icon: Video, href: '/videos' },
   { id: 'marketplace', label: 'बाजार', icon: Store, href: '/marketplace' },
   { id: 'schemes', label: 'सरकारी योजनाएं', icon: Award, href: '/schemes' },
 ];

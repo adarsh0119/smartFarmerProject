@@ -42,6 +42,19 @@
 - Transaction history with categories
 - LocalStorage persistence
 
+### 🐄 पशुपालन प्रबंधन (Livestock Management)
+- Complete information for all farming animals
+- Dairy animals (गाय, भैंस, बकरी, भेड़)
+- Meat production (ब्रॉयलर, बकरा, भेड़, सुअर, खरगोश)
+- Egg production (लेयर मुर्गी, देसी मुर्गी, बत्तख, बटेर)
+- Fish farming (रोहू, कतला, मृगल, कार्प)
+- Beekeeping (मधुमक्खी पालन)
+- Veterinary services and contacts
+- Feed management information
+- Insurance schemes
+- Government schemes for livestock
+- Training and best practices
+
 ### 🛒 बाजार (Marketplace)
 - Buy and sell agricultural products
 - Add advertisements with complete details
