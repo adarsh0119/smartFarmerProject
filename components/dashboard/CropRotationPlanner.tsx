@@ -118,7 +118,7 @@ export default function CropRotationPlanner() {
   const [selectedCrop, setSelectedCrop] = useState('धान');
   const [showRecommendations, setShowRecommendations] = useState(false);
 
-  const currentCropData = cropRotationData[selectedSeason][selectedCrop as keyof typeof cropRotationData[typeof selectedSeason]];
+  const currentCropData = cropRotationData[selectedSeason][selectedCrop as keyof typeof cropRotationData[typeof selectedSeason]] as { next: string[], benefits: string, avoid: string[], reason: string };
 
   const handleGetRecommendations = () => {
     setShowRecommendations(true);
@@ -154,7 +154,7 @@ export default function CropRotationPlanner() {
       {/* Selection Form */}
       <div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
         <h3 className="font-semibold text-gray-900 mb-4">अपनी वर्तमान फसल चुनें</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,7 +215,7 @@ export default function CropRotationPlanner() {
                 {selectedCrop} के बाद लगाएं
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
               {currentCropData.next.map((crop, index) => (
                 <div key={index} className="bg-white p-3 rounded-lg border border-green-200 text-center hover:shadow-md transition-shadow">
@@ -240,7 +240,7 @@ export default function CropRotationPlanner() {
                 इन फसलों से बचें
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
               {currentCropData.avoid.map((crop, index) => (
                 <div key={index} className="bg-white p-3 rounded-lg border border-red-200 text-center">
@@ -291,8 +291,8 @@ export default function CropRotationPlanner() {
       {/* Info Note */}
       <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <p className="text-sm text-yellow-800">
-          <span className="font-semibold">नोट:</span> फसल रोटेशन से मिट्टी की उर्वरता बनी रहती है, 
-          रोग और कीट कम होते हैं, और उत्पादन लगातार अच्छा मिलता है। अपने क्षेत्र की जलवायु 
+          <span className="font-semibold">नोट:</span> फसल रोटेशन से मिट्टी की उर्वरता बनी रहती है,
+          रोग और कीट कम होते हैं, और उत्पादन लगातार अच्छा मिलता है। अपने क्षेत्र की जलवायु
           और मिट्टी के अनुसार फसल चुनें।
         </p>
       </div>

@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db/mongodb';
 import Livestock from '@/lib/db/models/Livestock';
-import { verifyAuth } from '@/lib/middleware/auth';
-import { successResponse, errorResponse } from '@/lib/utils/response';
+import { authenticateToken } from '@/lib/middleware/auth';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/response';
 
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || 'active';
@@ -28,12 +28,12 @@ export async function GET(request: NextRequest) {
     const livestock = await Livestock.find(query).sort({ createdAt: -1 });
 
     return NextResponse.json(
-      successResponse('Livestock fetched successfully', livestock)
+      createSuccessResponse('Livestock fetched successfully', livestock)
     );
   } catch (error: any) {
     console.error('Error fetching livestock:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to fetch livestock'),
+      createErrorResponse(error.message || 'Failed to fetch livestock'),
       { status: 500 }
     );
   }
@@ -41,15 +41,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const body = await request.json();
     const {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!animalType || !breed || !tagNumber || !gender || !purchaseDate || !purchasePrice) {
       return NextResponse.json(
-        errorResponse('Missing required fields'),
+        createErrorResponse('Missing required fields'),
         { status: 400 }
       );
     }
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const existingAnimal = await Livestock.findOne({ tagNumber });
     if (existingAnimal) {
       return NextResponse.json(
-        errorResponse('Tag number already exists'),
+        createErrorResponse('Tag number already exists'),
         { status: 400 }
       );
     }
@@ -109,13 +109,13 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      successResponse('Livestock added successfully', livestock),
+      createSuccessResponse('Livestock added successfully', livestock),
       { status: 201 }
     );
   } catch (error: any) {
     console.error('Error adding livestock:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to add livestock'),
+      createErrorResponse(error.message || 'Failed to add livestock'),
       { status: 500 }
     );
   }

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, User, LogOut, Menu, X, MapPin } from 'lucide-react';
+import { Bell, User, LogOut, Menu, X, MapPin, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/common/ThemeProvider';
 
 export default function Header() {
+  const { isDark, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -54,7 +56,7 @@ export default function Header() {
         try {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          
+
           // Check for weather location first (priority)
           const weatherLocation = localStorage.getItem('weatherLocation');
           if (weatherLocation) {
@@ -69,7 +71,7 @@ export default function Header() {
               console.error('Error parsing weather location:', err);
             }
           }
-          
+
           // Fallback to user state
           if (parsedUser.state) {
             setUserLocation(parsedUser.state);
@@ -98,6 +100,21 @@ export default function Header() {
     // Custom event for same-tab updates
     window.addEventListener('userChanged', checkUser);
 
+    // Listen for location changes from WeatherCard city selection
+    const handleLocationChange = () => {
+      const saved = localStorage.getItem('weatherLocation');
+      if (saved) {
+        try {
+          const { name } = JSON.parse(saved);
+          if (name) {
+            setUserLocation(name);
+            setIsLoadingLocation(false);
+          }
+        } catch { }
+      }
+    };
+    window.addEventListener('locationChanged', handleLocationChange);
+
     // Poll for location updates every 2 seconds for the first 10 seconds
     let pollCount = 0;
     const pollInterval = setInterval(() => {
@@ -111,18 +128,17 @@ export default function Header() {
     return () => {
       window.removeEventListener('storage', checkUser);
       window.removeEventListener('userChanged', checkUser);
+      window.removeEventListener('locationChanged', handleLocationChange);
       clearInterval(pollInterval);
     };
   }, []);
 
   const handleLogout = () => {
-    // Clear user data from localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     setUser(null);
     setIsProfileOpen(false);
-    // Redirect to login page
-    window.location.href = '/auth/login';
+    window.location.href = '/landing';
   };
 
   const handleLogin = () => {
@@ -131,7 +147,7 @@ export default function Header() {
   };
 
   const markAsRead = (id: number) => {
-    setNotifications(notifications.map(notif => 
+    setNotifications(notifications.map(notif =>
       notif.id === id ? { ...notif, read: true } : notif
     ));
   };
@@ -147,7 +163,7 @@ export default function Header() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <header className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white shadow-lg">
+    <header className="bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-slate-900 dark:to-slate-800 text-white shadow-lg border-b border-emerald-700 dark:border-slate-700 transition-colors duration-300">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo and Brand */}
@@ -158,7 +174,7 @@ export default function Header() {
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-            
+
             <div className="flex items-center space-x-2">
               <div className="bg-white p-2 rounded-lg">
                 <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
@@ -173,7 +189,7 @@ export default function Header() {
           </div>
 
           {/* Right side with Location and Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {/* Live Location */}
             <div className="hidden lg:flex items-center space-x-2 bg-emerald-700/50 px-4 py-2 rounded-lg backdrop-blur-sm border border-emerald-500/30">
               <MapPin size={18} className="text-emerald-200 animate-pulse" />
@@ -185,9 +201,23 @@ export default function Header() {
               </div>
             </div>
 
+            {/* ── Dark / Light Toggle ── */}
+            <button
+              onClick={toggleTheme}
+              title={isDark ? 'Light mode' : 'Dark mode'}
+              aria-label="Toggle dark mode"
+              className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-emerald-700 dark:hover:bg-slate-700 transition-all duration-200"
+            >
+              {isDark ? (
+                <Sun size={18} className="text-amber-300" />
+              ) : (
+                <Moon size={18} className="text-white" />
+              )}
+            </button>
+
             {/* Notifications */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                 className="p-2 rounded-lg hover:bg-emerald-700 transition-colors relative"
               >
@@ -198,23 +228,22 @@ export default function Header() {
                   </span>
                 )}
               </button>
-              
+
               {/* Notifications dropdown */}
               {isNotificationOpen && (
                 <div className="absolute right-0 mt-2 w-96 bg-white text-gray-800 rounded-lg shadow-2xl z-50 border border-gray-200">
                   <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 className="font-bold text-lg">सूचनाएं</h3>
                   </div>
-                  
+
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                       <div className="divide-y divide-gray-100">
                         {notifications.map((notification) => (
                           <div
                             key={notification.id}
-                            className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                              !notification.read ? 'bg-emerald-50' : ''
-                            }`}
+                            className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? 'bg-emerald-50' : ''
+                              }`}
                             onClick={() => markAsRead(notification.id)}
                           >
                             <div className="flex items-start space-x-3">
@@ -290,19 +319,28 @@ export default function Header() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="p-2">
-                    <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      प्रोफाइल सेटिंग्स
+                    <button
+                      onClick={() => { setIsProfileOpen(false); window.location.href = '/settings'; }}
+                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm flex items-center space-x-2"
+                    >
+                      <span>⚙️</span><span>प्रोफाइल सेटिंग्स</span>
                     </button>
-                    <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      मेरे खेत का विवरण
+                    <button
+                      onClick={() => { setIsProfileOpen(false); window.location.href = '/settings#farm'; }}
+                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm flex items-center space-x-2"
+                    >
+                      <span>🌾</span><span>मेरे खेत का विवरण</span>
                     </button>
-                    <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm">
-                      मदद और सहायता
+                    <button
+                      onClick={() => { setIsProfileOpen(false); window.location.href = '/help'; }}
+                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm flex items-center space-x-2"
+                    >
+                      <span>❓</span><span>मदद और सहायता</span>
                     </button>
                   </div>
-                  
+
                   <div className="p-2 border-t">
                     {user ? (
                       <button

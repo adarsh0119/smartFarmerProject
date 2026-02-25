@@ -1,31 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db/mongodb';
 import Livestock from '@/lib/db/models/Livestock';
-import { verifyAuth } from '@/lib/middleware/auth';
-import { successResponse, errorResponse } from '@/lib/utils/response';
+import { authenticateToken } from '@/lib/middleware/auth';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/response';
 
 // Add vaccination
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const body = await request.json();
     const { type, data } = body;
 
     if (!type || !data) {
       return NextResponse.json(
-        errorResponse('Missing required fields'),
+        createErrorResponse('Missing required fields'),
         { status: 400 }
       );
     }
@@ -51,31 +51,31 @@ export async function POST(
       };
     } else {
       return NextResponse.json(
-        errorResponse('Invalid health record type'),
+        createErrorResponse('Invalid health record type'),
         { status: 400 }
       );
     }
 
     const livestock = await Livestock.findOneAndUpdate(
-      { _id: params.id, userId: authResult.userId },
+      { _id: (await context.params).id, userId: authResult.userId },
       updateQuery,
       { new: true }
     );
 
     if (!livestock) {
       return NextResponse.json(
-        errorResponse('Livestock not found'),
+        createErrorResponse('Livestock not found'),
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      successResponse('Health record added successfully', livestock)
+      createSuccessResponse('Health record added successfully', livestock)
     );
   } catch (error: any) {
     console.error('Error adding health record:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to add health record'),
+      createErrorResponse(error.message || 'Failed to add health record'),
       { status: 500 }
     );
   }

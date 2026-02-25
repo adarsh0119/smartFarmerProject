@@ -8,7 +8,7 @@ import { createSuccessResponse, createErrorResponse } from '@/lib/utils/helpers'
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const body = await request.json();
     const { email } = body;
 
@@ -30,20 +30,12 @@ export async function POST(request: NextRequest) {
     const otp = user.generateOTP();
     await user.save({ validateBeforeSave: false }); // Skip validation for OTP generation
 
-    // Send OTP via Email (console in dev mode)
+    // Send OTP via Email
     await sendOTP(email, otp);
 
-    if (process.env.NODE_ENV === 'development') {
-      return NextResponse.json(
-        createSuccessResponse('OTP sent successfully to your email', {
-          otp, // Only for development
-          expiresIn: '10 minutes'
-        })
-      );
-    }
-
+    // Never expose OTP in API response
     return NextResponse.json(
-      createSuccessResponse('OTP sent successfully to your email', {
+      createSuccessResponse('OTP आपके ईमेल पर भेज दिया गया है', {
         expiresIn: '10 minutes'
       })
     );

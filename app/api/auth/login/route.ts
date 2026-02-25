@@ -4,82 +4,112 @@ import { User } from '@/lib/db/models/User';
 import jwt from 'jsonwebtoken';
 import { validateEmail } from '@/lib/utils/validators';
 import { createSuccessResponse, createErrorResponse } from '@/lib/utils/helpers';
+import { sendOTP } from '@/lib/utils/sms';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'smartfarmer_super_secret_key_2024';
 
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const body = await request.json();
-    const { email, password } = body;
+    const { email, otp, action } = body;
 
-    // Validate inputs
-    if (!email || !password) {
+    // ── STEP 1: Send OTP to registered email ──────────────
+    if (action === 'send-otp') {
+      if (!email || !validateEmail(email)) {
+        return NextResponse.json(
+          createErrorResponse('कृपया एक वैध ईमेल पता दर्ज करें'),
+          { status: 400 }
+        );
+      }
+
+      // Check if user is registered
+      const user = await User.findOne({ email });
+      if (!user || !user.isVerified) {
+        return NextResponse.json(
+          createErrorResponse('यह ईमेल रजिस्टर नहीं है। पहले साइन अप करें।'),
+          { status: 404 }
+        );
+      }
+
+      // Generate & send OTP
+      const generatedOtp = user.generateOTP();
+      await user.save({ validateBeforeSave: false });
+      await sendOTP(email, generatedOtp);
+
+      // Never expose OTP in response
       return NextResponse.json(
-        createErrorResponse('Email and password are required'),
-        { status: 400 }
+        createSuccessResponse('OTP आपके ईमेल पर भेज दिया गया है', { expiresIn: '10 minutes' })
       );
     }
 
-    if (!validateEmail(email)) {
+    // ── STEP 2: Verify OTP and return JWT token ───────────
+    if (action === 'verify-otp') {
+      if (!email || !validateEmail(email)) {
+        return NextResponse.json(
+          createErrorResponse('कृपया एक वैध ईमेल पता दर्ज करें'),
+          { status: 400 }
+        );
+      }
+
+      if (!otp || otp.length !== 6) {
+        return NextResponse.json(
+          createErrorResponse('कृपया 6 अंकों का OTP दर्ज करें'),
+          { status: 400 }
+        );
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return NextResponse.json(
+          createErrorResponse('उपयोगकर्ता नहीं मिला'),
+          { status: 404 }
+        );
+      }
+
+      const isValid = user.verifyOTP(otp);
+      if (!isValid) {
+        return NextResponse.json(
+          createErrorResponse('OTP गलत है या समाप्त हो गया है'),
+          { status: 400 }
+        );
+      }
+
+      // Clear OTP and mark verified
+      user.otp = undefined;
+      user.isVerified = true;
+      await user.save({ validateBeforeSave: false });
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
       return NextResponse.json(
-        createErrorResponse('Please enter a valid email address'),
-        { status: 400 }
+        createSuccessResponse('लॉगिन सफल', {
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            isVerified: user.isVerified,
+            state: user.state,
+          },
+        })
       );
     }
-
-    // Find user by email
-    const user = await User.findOne({ email });
-    
-    if (!user) {
-      return NextResponse.json(
-        createErrorResponse('Invalid email or password'),
-        { status: 401 }
-      );
-    }
-
-    // Check if user has completed signup (has password)
-    if (!user.password) {
-      return NextResponse.json(
-        createErrorResponse('Please complete signup first'),
-        { status: 400 }
-      );
-    }
-
-    // Verify password
-    const isPasswordValid = await user.comparePassword(password);
-    
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        createErrorResponse('Invalid email or password'),
-        { status: 401 }
-      );
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
 
     return NextResponse.json(
-      createSuccessResponse('Login successful', {
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          isVerified: user.isVerified,
-          state: user.state
-        }
-      })
+      createErrorResponse('अमान्य अनुरोध'),
+      { status: 400 }
     );
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login OTP error:', error);
     return NextResponse.json(
-      createErrorResponse('Login failed'),
+      createErrorResponse('सर्वर त्रुटि। कृपया पुनः प्रयास करें।'),
       { status: 500 }
     );
   }

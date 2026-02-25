@@ -1,43 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db/mongodb';
 import Livestock from '@/lib/db/models/Livestock';
-import { verifyAuth } from '@/lib/middleware/auth';
-import { successResponse, errorResponse } from '@/lib/utils/response';
+import { authenticateToken } from '@/lib/middleware/auth';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/response';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const livestock = await Livestock.findOne({
-      _id: params.id,
+      _id: (await context.params).id,
       userId: authResult.userId
     });
 
     if (!livestock) {
       return NextResponse.json(
-        errorResponse('Livestock not found'),
+        createErrorResponse('Livestock not found'),
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      successResponse('Livestock fetched successfully', livestock)
+      createSuccessResponse('Livestock fetched successfully', livestock)
     );
   } catch (error: any) {
     console.error('Error fetching livestock:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to fetch livestock'),
+      createErrorResponse(error.message || 'Failed to fetch livestock'),
       { status: 500 }
     );
   }
@@ -45,41 +45,41 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const body = await request.json();
 
     const livestock = await Livestock.findOneAndUpdate(
-      { _id: params.id, userId: authResult.userId },
+      { _id: (await context.params).id, userId: authResult.userId },
       { $set: body },
       { new: true, runValidators: true }
     );
 
     if (!livestock) {
       return NextResponse.json(
-        errorResponse('Livestock not found'),
+        createErrorResponse('Livestock not found'),
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      successResponse('Livestock updated successfully', livestock)
+      createSuccessResponse('Livestock updated successfully', livestock)
     );
   } catch (error: any) {
     console.error('Error updating livestock:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to update livestock'),
+      createErrorResponse(error.message || 'Failed to update livestock'),
       { status: 500 }
     );
   }
@@ -87,38 +87,38 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const livestock = await Livestock.findOneAndDelete({
-      _id: params.id,
+      _id: (await context.params).id,
       userId: authResult.userId
     });
 
     if (!livestock) {
       return NextResponse.json(
-        errorResponse('Livestock not found'),
+        createErrorResponse('Livestock not found'),
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      successResponse('Livestock deleted successfully')
+      createSuccessResponse('Livestock deleted successfully')
     );
   } catch (error: any) {
     console.error('Error deleting livestock:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to delete livestock'),
+      createErrorResponse(error.message || 'Failed to delete livestock'),
       { status: 500 }
     );
   }

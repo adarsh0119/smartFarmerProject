@@ -1,38 +1,40 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Header from "@/components/common/Header";
-import Navigation from "@/components/common/Navigation";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/common/ThemeProvider';
+import ConditionalLayout from '@/components/common/ConditionalLayout';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Smart Farmer Assistant",
-  description: "Smart Farmer Assistant - Empowering farmers with technology",
+  title: 'Smart Farmer Assistant | स्मार्ट किसान सहायक',
+  description: 'किसानों का डिजिटल साथी — फसल सुझाव, मौसम पूर्वानुमान, रोग पहचान और मंडी भाव',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+// Inline script: apply dark class BEFORE first paint to prevent flash
+const themeScript = `
+(function(){
+  try {
+    var t=localStorage.getItem('sf-theme');
+    if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+      document.documentElement.classList.add('dark');
+    }
+  }catch(e){}
+})();
+`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="hi">
-      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <div className="flex flex-1">
-            <Navigation />
-            <main className="flex-1 p-4 md:p-6">
-              {children}
-            </main>
-          </div>
-          <footer className="bg-gray-800 text-white p-4 text-center">
-            <p className="text-sm text-gray-300">
-              &copy; {new Date().getFullYear()} Smart Farmer Assistant. All rights reserved.
-            </p>
-          </footer>
-        </div>
+    <html lang="hi" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </ThemeProvider>
       </body>
     </html>
   );

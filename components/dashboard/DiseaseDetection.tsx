@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, Camera, Image as ImageIcon, AlertTriangle, CheckCircle, X } from 'lucide-react';
+import { Upload, Image as ImageIcon, AlertTriangle, CheckCircle, X, Search } from 'lucide-react';
 
 const commonDiseases = [
   {
@@ -76,8 +76,8 @@ export default function DiseaseDetection() {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedDisease, setSelectedDisease] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -91,50 +91,16 @@ export default function DiseaseDetection() {
     }
   };
 
-  const handleCameraClick = async () => {
-    // Check if device has camera support
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('आपका ब्राउज़र कैमरा का समर्थन नहीं करता। कृपया तस्वीर अपलोड करें।');
-      return;
-    }
-
-    try {
-      // Request camera permission and access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      
-      // Stop the stream immediately as we just needed permission
-      stream.getTracks().forEach(track => track.stop());
-      
-      // Now trigger the file input with camera
-      cameraInputRef.current?.click();
-    } catch (error: any) {
-      if (error.name === 'NotAllowedError') {
-        alert('कैमरा की अनुमति नहीं दी गई। कृपया ब्राउज़र सेटिंग्स में कैमरा की अनुमति दें।');
-      } else if (error.name === 'NotFoundError') {
-        alert('कोई कैमरा नहीं मिला। कृपया तस्वीर अपलोड करें।');
-      } else {
-        alert('कैमरा एक्सेस करने में त्रुटि। कृपया तस्वीर अपलोड करें।');
-      }
-      console.error('Camera error:', error);
-    }
-  };
-
   const handleAnalyze = () => {
     if (!selectedImage) return;
-
     setIsAnalyzing(true);
     setUploadProgress(0);
 
-    // Simulate analysis progress
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsAnalyzing(false);
-          
-          // Mock analysis result
           setAnalysisResult({
             disease: 'पत्ती का रतुआ',
             confidence: 87,
@@ -168,54 +134,45 @@ export default function DiseaseDetection() {
   const handleRemoveImage = () => {
     setSelectedImage(null);
     setAnalysisResult(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const filteredDiseases = commonDiseases.filter(
+    (d) =>
+      d.name.includes(searchQuery) ||
+      d.crop.includes(searchQuery) ||
+      d.symptoms.includes(searchQuery)
+  );
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold flex items-center">
           <AlertTriangle className="w-5 h-5 mr-2 text-amber-500" />
           रोग पहचान
         </h2>
-        <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
-          इतिहास देखें
-        </button>
       </div>
 
-      {/* Image Upload Section */}
+      {/* ── Image Upload Section ─────────────────────────────── */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">फसल की तस्वीर अपलोड करें</h3>
-          <span className="text-xs text-gray-500">अधिकतम 5MB • JPG, PNG</span>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-gray-800">फसल की तस्वीर अपलोड करें</h3>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+            JPG, PNG • अधिकतम 5MB
+          </span>
         </div>
 
         {!selectedImage ? (
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-amber-400 transition-colors">
-            <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">प्रभावित फसल की पत्तियों की तस्वीर अपलोड करें</p>
-            <p className="text-xs text-gray-500 mb-4">💡 सुझाव: मोबाइल पर कैमरा बेहतर काम करता है</p>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center justify-center space-x-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
-              >
-                <Upload className="w-4 h-4" />
-                <span>तस्वीर अपलोड करें</span>
-              </button>
-              
-              <button
-                onClick={handleCameraClick}
-                className="flex items-center justify-center space-x-2 border border-amber-600 text-amber-600 px-4 py-2 rounded-lg hover:bg-amber-50 transition-colors"
-              >
-                <Camera className="w-4 h-4" />
-                <span>कैमरा उपयोग करें</span>
-              </button>
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center hover:border-amber-400 hover:bg-amber-50 transition-all duration-200 cursor-pointer"
+          >
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Upload className="w-7 h-7 text-amber-600" />
             </div>
-
+            <p className="text-gray-700 font-medium mb-1">क्लिक करें और तस्वीर चुनें</p>
+            <p className="text-sm text-gray-400">प्रभावित पत्ती या फल की स्पष्ट तस्वीर अपलोड करें</p>
             <input
               type="file"
               ref={fileInputRef}
@@ -223,36 +180,29 @@ export default function DiseaseDetection() {
               accept="image/*"
               className="hidden"
             />
-            <input
-              type="file"
-              ref={cameraInputRef}
-              onChange={handleFileSelect}
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-            />
           </div>
         ) : (
           <div className="relative">
-            <div className="border border-gray-300 rounded-lg overflow-hidden">
-              <img
-                src={selectedImage}
-                alt="Selected crop"
-                className="w-full h-48 object-cover"
-              />
+            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <img src={selectedImage} alt="Selected crop" className="w-full h-52 object-cover" />
             </div>
             <button
               onClick={handleRemoveImage}
-              className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+              className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 shadow-md transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
-            
             {isAnalyzing && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/55 rounded-xl flex items-center justify-center">
                 <div className="text-center text-white">
-                  <div className="spinner mx-auto mb-2 border-white border-t-white"></div>
-                  <p>विश्लेषण हो रहा है... {uploadProgress}%</p>
+                  <div className="spinner mx-auto mb-2" />
+                  <p className="font-medium">विश्लेषण हो रहा है... {uploadProgress}%</p>
+                  <div className="w-40 bg-white/30 rounded-full h-1.5 mt-2 mx-auto">
+                    <div
+                      className="bg-amber-400 h-1.5 rounded-full transition-all duration-200"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -262,86 +212,78 @@ export default function DiseaseDetection() {
         {selectedImage && !isAnalyzing && !analysisResult && (
           <button
             onClick={handleAnalyze}
-            className="w-full mt-4 bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+            className="w-full mt-4 bg-amber-600 text-white py-3 rounded-xl font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
           >
+            <ImageIcon className="w-5 h-5" />
             रोगों के लिए तस्वीर का विश्लेषण करें
           </button>
         )}
       </div>
 
-      {/* Analysis Results */}
+      {/* ── Analysis Results ──────────────────────────────────── */}
       {analysisResult && (
-        <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-amber-800">पहचान परिणाम</h3>
-              <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                {analysisResult.confidence}% विश्वसनीयता
+        <div className="space-y-4 mb-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-amber-800 text-lg">पहचान परिणाम</h3>
+              <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                {analysisResult.confidence}% सटीकता
               </span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4 mb-3">
-              <div>
-                <p className="text-sm text-gray-500">रोग</p>
-                <p className="font-semibold">{analysisResult.disease}</p>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="bg-white rounded-lg p-2.5 border border-amber-100">
+                <p className="text-xs text-gray-400 mb-0.5">रोग का नाम</p>
+                <p className="font-semibold text-gray-900">{analysisResult.disease}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">फसल</p>
-                <p className="font-semibold">{analysisResult.crop}</p>
+              <div className="bg-white rounded-lg p-2.5 border border-amber-100">
+                <p className="text-xs text-gray-400 mb-0.5">फसल</p>
+                <p className="font-semibold text-gray-900">{analysisResult.crop}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">गंभीरता</p>
-                <p className="font-semibold">{analysisResult.severity}</p>
+              <div className="bg-white rounded-lg p-2.5 border border-amber-100">
+                <p className="text-xs text-gray-400 mb-0.5">गंभीरता</p>
+                <p className="font-semibold text-orange-600">{analysisResult.severity}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">जोखिम स्तर</p>
+              <div className="bg-white rounded-lg p-2.5 border border-amber-100">
+                <p className="text-xs text-gray-400 mb-0.5">जोखिम स्तर</p>
                 <p className="font-semibold text-red-600">{analysisResult.riskLevel}</p>
               </div>
             </div>
-
             <p className="text-sm text-amber-700">{analysisResult.description}</p>
           </div>
 
-          {/* Treatment & Prevention */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h4 className="font-semibold text-red-800 mb-2 flex items-center">
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                तत्काल कार्रवाई
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" /> तत्काल कार्रवाई
               </h4>
-              <ul className="space-y-1">
-                {analysisResult.immediateActions.map((action: string, index: number) => (
-                  <li key={index} className="text-sm text-red-700 flex items-start">
-                    <span className="mr-2">•</span>
-                    {action}
+              <ul className="space-y-1.5">
+                {analysisResult.immediateActions.map((action: string, i: number) => (
+                  <li key={i} className="text-sm text-red-700 flex items-start gap-2">
+                    <span className="mt-0.5 text-red-400">•</span>{action}
                   </li>
                 ))}
               </ul>
             </div>
-
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <h4 className="font-semibold text-emerald-800 mb-2 flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                उपचार
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <h4 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" /> उपचार
               </h4>
-              <ul className="space-y-1">
-                {analysisResult.treatment.map((item: string, index: number) => (
-                  <li key={index} className="text-sm text-emerald-700 flex items-start">
-                    <span className="mr-2">•</span>
-                    {item}
+              <ul className="space-y-1.5">
+                {analysisResult.treatment.map((item: string, i: number) => (
+                  <li key={i} className="text-sm text-emerald-700 flex items-start gap-2">
+                    <span className="mt-0.5 text-emerald-400">•</span>{item}
                   </li>
                 ))}
               </ul>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <h4 className="font-semibold text-blue-800 mb-2">रोकथाम के उपाय</h4>
-            <ul className="space-y-1">
-              {analysisResult.prevention.map((item: string, index: number) => (
-                <li key={index} className="text-sm text-blue-700 flex items-start">
-                  <span className="mr-2">•</span>
-                  {item}
+            <ul className="space-y-1.5">
+              {analysisResult.prevention.map((item: string, i: number) => (
+                <li key={i} className="text-sm text-blue-700 flex items-start gap-2">
+                  <span className="mt-0.5 text-blue-400">•</span>{item}
                 </li>
               ))}
             </ul>
@@ -349,50 +291,65 @@ export default function DiseaseDetection() {
         </div>
       )}
 
-      {/* Common Diseases */}
-      <div className="mt-6">
-        <h3 className="font-semibold mb-3">आपके क्षेत्र में आम रोग</h3>
+      {/* ── Common Disease Library ────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-gray-800">आम रोगों की जानकारी</h3>
+          <span className="text-xs text-gray-400">{commonDiseases.length} रोग</span>
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="रोग, फसल या लक्षण खोजें..."
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+          />
+        </div>
+
         <div className="space-y-2">
-          {commonDiseases.map((disease) => (
+          {filteredDiseases.length === 0 && (
+            <p className="text-center text-gray-400 py-6 text-sm">कोई रोग नहीं मिला</p>
+          )}
+          {filteredDiseases.map((disease) => (
             <div key={disease.id}>
-              <div 
-                className="p-3 border border-gray-200 rounded-lg hover:border-amber-300 transition-colors cursor-pointer"
+              <div
+                className="p-3 border border-gray-200 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all duration-150 cursor-pointer"
                 onClick={() => setSelectedDisease(selectedDisease === disease.id ? null : disease.id)}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-medium">{disease.name}</h4>
-                    <p className="text-sm text-gray-600">{disease.crop} • {disease.symptoms}</p>
+                    <h4 className="font-medium text-gray-900">{disease.name}</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      <span className="text-amber-600 font-medium">{disease.crop}</span> • {disease.symptoms}
+                    </p>
                   </div>
-                  <button className="text-sm text-amber-600 hover:text-amber-800 font-medium">
-                    {selectedDisease === disease.id ? 'छिपाएं' : 'विवरण'}
-                  </button>
+                  <span className="text-xs text-amber-600 font-medium shrink-0 ml-2">
+                    {selectedDisease === disease.id ? '▲ छिपाएं' : '▼ विवरण'}
+                  </span>
                 </div>
               </div>
 
-              {/* Disease Details - Expandable */}
               {selectedDisease === disease.id && (
-                <div className="mt-2 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                <div className="mt-1 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
                   <div>
-                    <h5 className="font-semibold text-amber-800 mb-2 flex items-center">
-                      <AlertTriangle className="w-4 h-4 mr-2" />
-                      लक्षण
+                    <h5 className="font-semibold text-amber-800 mb-1 text-sm flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5" /> लक्षण
                     </h5>
                     <p className="text-sm text-amber-700">{disease.symptoms}</p>
                   </div>
-
                   <div>
-                    <h5 className="font-semibold text-green-800 mb-2 flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      उपचार
+                    <h5 className="font-semibold text-green-800 mb-1 text-sm flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5" /> उपचार
                     </h5>
                     <p className="text-sm text-green-700">{disease.treatment}</p>
                   </div>
-
                   <div>
-                    <h5 className="font-semibold text-blue-800 mb-2 flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      रोकथाम
+                    <h5 className="font-semibold text-blue-800 mb-1 text-sm flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5" /> रोकथाम
                     </h5>
                     <p className="text-sm text-blue-700">{disease.prevention}</p>
                   </div>

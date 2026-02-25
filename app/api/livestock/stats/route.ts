@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db/mongodb';
 import Livestock from '@/lib/db/models/Livestock';
-import { verifyAuth } from '@/lib/middleware/auth';
-import { successResponse, errorResponse } from '@/lib/utils/response';
+import { authenticateToken } from '@/lib/middleware/auth';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/response';
 
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const livestock = await Livestock.find({
       userId: authResult.userId,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
       // Milk production
       const records = animal.milkProduction?.records || [];
-      records.forEach(record => {
+      records.forEach((record: any) => {
         const recordDate = new Date(record.date);
         if (recordDate >= today) {
           stats.milkProduction.today += record.total;
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
       // Upcoming vaccinations
       const vaccinations = animal.health?.vaccinations || [];
-      vaccinations.forEach(vac => {
+      animal.health?.vaccinations?.forEach((vac: any) => {
         if (vac.nextDue) {
           const dueDate = new Date(vac.nextDue);
           const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -104,12 +104,12 @@ export async function GET(request: NextRequest) {
     stats.upcomingVaccinations.sort((a, b) => a.daysUntilDue - b.daysUntilDue);
 
     return NextResponse.json(
-      successResponse('Statistics fetched successfully', stats)
+      createSuccessResponse('Statistics fetched successfully', stats)
     );
   } catch (error: any) {
     console.error('Error fetching statistics:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to fetch statistics'),
+      createErrorResponse(error.message || 'Failed to fetch statistics'),
       { status: 500 }
     );
   }

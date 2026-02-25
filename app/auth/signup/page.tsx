@@ -3,353 +3,273 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, User as UserIcon, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, ArrowRight, Eye, EyeOff, Sprout, CheckCircle } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
   const [step, setStep] = useState<'details' | 'otp'>('details');
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    otp: ''
+    name: '', email: '', password: '', confirmPassword: '', otp: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
     setError('');
   };
 
-  const handleSendOTP = async () => {
-    // Validation
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
-    if (!formData.email.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    if (!termsAccepted) {
-      setError('Please accept the terms and conditions');
-      return;
-    }
+  const handleSendOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return setError('कृपया अपना नाम दर्ज करें');
+    if (!formData.email.includes('@')) return setError('कृपया एक वैध ईमेल पता दर्ज करें');
+    if (formData.password.length < 6) return setError('पासवर्ड कम से कम 6 अक्षर का होना चाहिए');
+    if (formData.password !== formData.confirmPassword) return setError('पासवर्ड मेल नहीं खाते');
+    if (!termsAccepted) return setError('कृपया नियम और शर्तें स्वीकार करें');
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/send-otp', {
+      const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email }),
       });
-
-      const data = await response.json();
-      
-      if (response.ok) {
+      const data = await res.json();
+      if (res.ok) {
         setStep('otp');
         setError('');
       } else {
-        setError(data.message || 'Failed to send OTP');
+        setError(data.message || 'OTP भेजने में विफल');
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
+    } catch {
+      setError('नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyAndSignup = async () => {
-    if (!formData.otp || formData.otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
-      return;
-    }
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.otp || formData.otp.length !== 6) return setError('कृपया 6 अंकों का OTP दर्ज करें');
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          otp: formData.otp
+          name: formData.name, email: formData.email,
+          password: formData.password, otp: formData.otp
         }),
       });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Store token and user data
+      const data = await res.json();
+      if (res.ok) {
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('user', JSON.stringify(data.data.user));
-        
-        // Trigger custom event to update header
         window.dispatchEvent(new Event('userChanged'));
-        
-        // Redirect to dashboard with a full page reload to ensure state is updated
-        window.location.href = '/';
+        window.location.href = '/dashboard';
       } else {
-        setError(data.message || 'Signup failed');
+        setError(data.message || 'खाता बनाने में विफल');
       }
-    } catch (err) {
-      console.error('Signup error:', err);
-      setError('Network error. Please try again.');
+    } catch {
+      setError('नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    
-    if (step === 'details') {
-      handleSendOTP();
-    } else {
-      handleVerifyAndSignup();
-    }
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '13px 14px 13px 42px', borderRadius: 10,
+    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+    color: '#e2e8f0', fontSize: 15, outline: 'none', boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
+  };
+  const labelStyle: React.CSSProperties = {
+    display: 'block', color: 'rgba(203,213,225,0.9)', fontSize: 13, fontWeight: 600, marginBottom: 8
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl mb-4">
-              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0d1f0f 0%, #0a1628 50%, #0d1f1a 100%)',
+      padding: '20px', position: 'relative', overflow: 'hidden'
+    }}>
+      {/* Background blobs */}
+      <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 10 }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <Link href="/landing" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(16,185,129,0.4)' }}>
+              <Sprout size={22} color="white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {step === 'details' ? 'अपना खाता बनाएं' : 'अपना ईमेल सत्यापित करें'}
-            </h1>
-            <p className="text-gray-700 mt-2">
-              {step === 'details' ? 'स्मार्ट किसान सहायक में शामिल हों' : `OTP भेजा गया ${formData.email} पर`}
-            </p>
+            <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>स्मार्ट किसान</span>
+          </Link>
+        </div>
+
+        {/* Step indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#10b981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff' }}>
+              {step === 'otp' ? <CheckCircle size={14} /> : '1'}
+            </div>
+            <span style={{ color: '#6ee7b7', fontSize: 13, fontWeight: 600 }}>विवरण</span>
           </div>
-          
+          <div style={{ width: 32, height: 1, background: step === 'otp' ? '#10b981' : 'rgba(255,255,255,0.15)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: step === 'otp' ? 'linear-gradient(135deg,#10b981,#059669)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: step === 'otp' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+              2
+            </div>
+            <span style={{ color: step === 'otp' ? '#6ee7b7' : 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 600 }}>OTP सत्यापन</span>
+          </div>
+        </div>
+
+        {/* Card */}
+        <div style={{
+          background: 'rgba(22,30,40,0.85)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20,
+          padding: '32px 28px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+        }}>
+          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 700, margin: '0 0 6px' }}>
+            {step === 'details' ? 'नया खाता बनाएं' : 'OTP सत्यापित करें'}
+          </h1>
+          <p style={{ color: 'rgba(148,163,184,0.7)', fontSize: 14, margin: '0 0 24px' }}>
+            {step === 'details' ? (
+              <>पहले से खाता है?{' '}<Link href="/auth/login" style={{ color: '#34d399', fontWeight: 600, textDecoration: 'none' }}>लॉगिन करें</Link></>
+            ) : (
+              <><strong style={{ color: '#34d399' }}>{formData.email}</strong> पर OTP भेजा गया</>
+            )}
+          </p>
+
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span>⚠️</span>
+              <p style={{ color: '#fca5a5', fontSize: 14, margin: 0 }}>{error}</p>
             </div>
           )}
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {step === 'details' ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
-                    पूरा नाम *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="अपना पूरा नाम दर्ज करें"
-                      required
-                    />
-                  </div>
+
+
+          {step === 'details' ? (
+            <form onSubmit={handleSendOTP} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Name */}
+              <div>
+                <label style={labelStyle}>पूरा नाम *</label>
+                <div style={{ position: 'relative' }}>
+                  <UserIcon size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(100,116,139,0.8)', pointerEvents: 'none' }} />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="अपना पूरा नाम दर्ज करें" required style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = 'rgba(16,185,129,0.6)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
-                    ईमेल पता *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="आपका ईमेल"
-                      required
-                    />
-                  </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label style={labelStyle}>ईमेल पता *</label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(100,116,139,0.8)', pointerEvents: 'none' }} />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="आपका ईमेल पता" required style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = 'rgba(16,185,129,0.6)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
-                    पासवर्ड *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="पासवर्ड बनाएं (न्यूनतम 6 अक्षर)"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
-                    पासवर्ड की पुष्टि करें *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900"
-                      placeholder="अपने पासवर्ड की पुष्टि करें"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded mt-1"
-                  />
-                  <label htmlFor="terms" className="ml-2 text-sm text-gray-800">
-                    मैं{' '}
-                    <a href="#" className="text-emerald-700 hover:text-emerald-600 font-medium">
-                      सेवा की शर्तों
-                    </a>{' '}
-                    और{' '}
-                    <a href="#" className="text-emerald-700 hover:text-emerald-600 font-medium">
-                      गोपनीयता नीति
-                    </a>{' '}
-                    से सहमत हूं
-                  </label>
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
-                    OTP दर्ज करें *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      name="otp"
-                      value={formData.otp}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none placeholder:text-gray-500 text-gray-900 text-center text-2xl tracking-widest"
-                      placeholder="000000"
-                      maxLength={6}
-                      required
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setStep('details')}
-                    className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 flex items-center"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    ईमेल या विवरण बदलें
+              </div>
+
+              {/* Password */}
+              <div>
+                <label style={labelStyle}>पासवर्ड * <span style={{ color: 'rgba(148,163,184,0.5)', fontWeight: 400 }}>(न्यूनतम 6 अक्षर)</span></label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(100,116,139,0.8)', pointerEvents: 'none' }} />
+                  <input type={showPass ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} placeholder="पासवर्ड बनाएं" required style={{ ...inputStyle, paddingRight: 44 }}
+                    onFocus={e => e.target.style.borderColor = 'rgba(16,185,129,0.6)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                  <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(100,116,139,0.8)', padding: 0 }}>
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              </div>
 
-                {process.env.NODE_ENV === 'development' && (
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <p className="text-sm text-blue-800 font-medium mb-1">डेवलपमेंट मोड:</p>
-                    <p className="text-sm text-blue-700">
-                      OTP कोड के लिए ब्राउज़र कंसोल देखें
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-            
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-lg font-medium hover:from-emerald-600 hover:to-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              {isLoading ? (
-                <>
-                  <div className="spinner mr-2"></div>
-                  प्रोसेस हो रहा है...
-                </>
-              ) : (
-                <>
-                  {step === 'details' ? 'OTP भेजें' : 'सत्यापित करें और खाता बनाएं'}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </>
-              )}
-            </button>
-          </form>
-          
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-700">
-              पहले से खाता है?{' '}
-              <Link href="/auth/login" className="text-emerald-700 hover:text-emerald-800 font-medium">
-                यहां साइन इन करें
-              </Link>
-            </p>
-          </div>
+              {/* Confirm Password */}
+              <div>
+                <label style={labelStyle}>पासवर्ड की पुष्टि करें *</label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(100,116,139,0.8)', pointerEvents: 'none' }} />
+                  <input type={showConfirm ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="दोबारा पासवर्ड दर्ज करें" required style={{ ...inputStyle, paddingRight: 44 }}
+                    onFocus={e => e.target.style.borderColor = 'rgba(16,185,129,0.6)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(100,116,139,0.8)', padding: 0 }}>
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms */}
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+                <input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)}
+                  style={{ width: 16, height: 16, marginTop: 2, accentColor: '#10b981', flexShrink: 0 }} />
+                <span style={{ color: 'rgba(148,163,184,0.8)', fontSize: 13, lineHeight: 1.5 }}>
+                  मैं <a href="#" style={{ color: '#34d399', textDecoration: 'none' }}>सेवा की शर्तों</a> और <a href="#" style={{ color: '#34d399', textDecoration: 'none' }}>गोपनीयता नीति</a> से सहमत हूं
+                </span>
+              </label>
+
+              <button type="submit" disabled={isLoading} style={{
+                width: '100%', padding: '14px', borderRadius: 10, marginTop: 4,
+                background: isLoading ? 'rgba(16,185,129,0.5)' : 'linear-gradient(135deg,#10b981,#059669)',
+                color: '#fff', fontSize: 15, fontWeight: 700, border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: isLoading ? 'none' : '0 0 20px rgba(16,185,129,0.35)',
+                transition: 'all 0.2s',
+              }}>
+                {isLoading ? <><div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />OTP भेजा जा रहा है...</> : <>OTP भेजें <ArrowRight size={18} /></>}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>6 अंकों का OTP दर्ज करें *</label>
+                <input type="text" name="otp" value={formData.otp} onChange={handleChange}
+                  placeholder="○ ○ ○ ○ ○ ○" maxLength={6} required
+                  style={{
+                    width: '100%', padding: '18px 14px', borderRadius: 10, boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(16,185,129,0.3)',
+                    color: '#34d399', fontSize: 28, fontWeight: 800, outline: 'none',
+                    textAlign: 'center', letterSpacing: 16, fontFamily: 'monospace',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#34d399'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(16,185,129,0.3)'}
+                />
+                <p style={{ color: 'rgba(148,163,184,0.6)', fontSize: 12, marginTop: 8 }}>
+                  ⏰ OTP 10 मिनट में समाप्त होगा
+                </p>
+              </div>
+
+              <button type="submit" disabled={isLoading} style={{
+                width: '100%', padding: '14px', borderRadius: 10,
+                background: isLoading ? 'rgba(16,185,129,0.5)' : 'linear-gradient(135deg,#10b981,#059669)',
+                color: '#fff', fontSize: 15, fontWeight: 700, border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: isLoading ? 'none' : '0 0 20px rgba(16,185,129,0.35)',
+                transition: 'all 0.2s',
+              }}>
+                {isLoading ? <><div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />सत्यापित हो रहा है...</> : <>सत्यापित करें और खाता बनाएं <ArrowRight size={18} /></>}
+              </button>
+
+              <button type="button" onClick={() => { setStep('details'); setError(''); }}
+                style={{ background: 'none', border: 'none', color: 'rgba(148,163,184,0.7)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent', padding: '4px 0' }}>
+                ← ईमेल या विवरण बदलें
+              </button>
+            </form>
+          )}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+          <Link href="/landing" style={{ color: 'rgba(100,116,139,0.7)', fontSize: 13, textDecoration: 'none' }}>
+            ← वापस होम पेज पर जाएं
+          </Link>
         </div>
       </div>
     </div>

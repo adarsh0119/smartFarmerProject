@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db/mongodb';
 import Livestock from '@/lib/db/models/Livestock';
-import { verifyAuth } from '@/lib/middleware/auth';
-import { successResponse, errorResponse } from '@/lib/utils/response';
+import { authenticateToken } from '@/lib/middleware/auth';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/response';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success || !authResult.userId) {
+    const authResult = await authenticateToken(request);
+    if (!authResult || !authResult.userId) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        createErrorResponse('Unauthorized'),
         { status: 401 }
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     const body = await request.json();
     const { date, morning, evening, fat, notes } = body;
 
     if (!date || morning === undefined || evening === undefined) {
       return NextResponse.json(
-        errorResponse('Missing required fields'),
+        createErrorResponse('Missing required fields'),
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(
     const total = morning + evening;
 
     const livestock = await Livestock.findOneAndUpdate(
-      { _id: params.id, userId: authResult.userId },
+      { _id: (await context.params).id, userId: authResult.userId },
       {
         $push: {
           'milkProduction.records': {
@@ -50,7 +50,7 @@ export async function POST(
 
     if (!livestock) {
       return NextResponse.json(
-        errorResponse('Livestock not found'),
+        createErrorResponse('Livestock not found'),
         { status: 404 }
       );
     }
@@ -58,19 +58,19 @@ export async function POST(
     // Calculate average
     const records = livestock.milkProduction?.records || [];
     const last7Days = records.slice(-7);
-    const avgPerDay = last7Days.reduce((sum, r) => sum + r.total, 0) / last7Days.length;
+    const avgPerDay = last7Days.reduce((sum: number, r: any) => sum + r.total, 0) / last7Days.length;
 
-    await Livestock.findByIdAndUpdate(params.id, {
+    await Livestock.findByIdAndUpdate((await context.params).id, {
       'milkProduction.averagePerDay': avgPerDay
     });
 
     return NextResponse.json(
-      successResponse('Milk production recorded successfully', livestock)
+      createSuccessResponse('Milk production recorded successfully', livestock)
     );
   } catch (error: any) {
     console.error('Error recording milk production:', error);
     return NextResponse.json(
-      errorResponse(error.message || 'Failed to record milk production'),
+      createErrorResponse(error.message || 'Failed to record milk production'),
       { status: 500 }
     );
   }

@@ -47,7 +47,7 @@ export default function SettingsPage() {
 
       <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
         <h2 className="text-xl font-bold text-gray-900 mb-6">प्रोफाइल जानकारी</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -122,7 +122,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div>
+          <div id="farm">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               खेत का आकार (एकड़)
             </label>
